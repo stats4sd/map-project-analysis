@@ -1,0 +1,324 @@
+---
+title: "CAET vs Environment"
+output: html_document
+date: "2024-02-22"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = FALSE,
+    error = FALSE,
+    message = FALSE
+)
+
+#renv::restore()
+
+# Load Libraries
+library(tidyverse)
+library(openxlsx)
+library(flextable)
+library(fmsb)
+
+#read in performance data
+Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Main Survey",
+                        check.names = TRUE)
+
+Indicators <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Calculated Indicators",
+                        check.names = TRUE)%>%
+  select(farm_id, dietary_diversity:pest_score)%>%
+  select(-c(inc3,structure, compaction, depth, residues,
+            color, water_ret, cover, erosion, invertebrates, microbio))
+
+data <- left_join(Main_Survey,
+                         Indicators)
+
+#import functions to use for analysis
+source("../functions.R")
+```
+
+## Agrobiodiversity
+
+### Gini-Simpson index of diversity for animals
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "GSIndex_animals",
+    ytitle = "Gini-Simpson index of diversity for animals",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "GSIndex_animals",
+    facet = "location_level_one_name",
+    ytitle = "Gini-Simpson index of diversity for animals",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "GSIndex_animals")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "GSIndex_animals",
+          title = "Gini-Simpson index of diversity for animals" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "GSIndex_animals",
+          title = "Gini-Simpson index of diversity for animals")
+```
+
+### Gini-Simpson index of diversity for animals
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "GSIndex_animals",
+    ytitle = "Gini-Simpson index of diversity for animals",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "GSIndex_animals",
+    facet = "location_level_one_name",
+    ytitle = "Gini-Simpson index of diversity for animals",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "GSIndex_animals")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "GSIndex_animals",
+          title = "Gini-Simpson index of diversity for animals" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "GSIndex_animals",
+          title = "Gini-Simpson index of diversity for animals")
+```
+
+### Gini-Simpson index of diversity for natural vegetation and pollinators
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "GSI_other",
+    ytitle = "Gini-Simpson index of diversity\nfor natural vegetation and pollinators",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "GSI_other",
+    facet = "location_level_one_name",
+    ytitle = "Gini-Simpson index of diversity\nfor natural vegetation and pollinators",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "GSI_other")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "GSI_other",
+          title = "Gini-Simpson index of diversity\nfor natural vegetation and pollinators" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "GSI_other",
+          title = "Gini-Simpson index of diversity\nfor natural vegetation and pollinators")
+```
+
+### Number of species and varieties of crops
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "num_crops_c1",
+    ytitle = "Number of species and varieties of crops",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "num_crops_c1",
+    facet = "location_level_one_name",
+    ytitle = "Number of species and varieties of crops",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "num_crops_c1")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "num_crops_c1",
+          title = "Number of species and varieties of crops" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "num_crops_c1",
+          title = "Number of species and varieties of crops")
+```
+
+### Number of species and breeds of animals
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "num_animals_a1",
+    ytitle = "Number of species and breeds of animals",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "num_animals_a1",
+    facet = "location_level_one_name",
+    ytitle = "Number of species and breeds of animals",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "num_animals_a1")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "num_animals_a1",
+          title = "Number of species and breeds of animals" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "num_animals_a1",
+          title = "Number of species and breeds of animals")
+```
+
+### Livestock Units
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "total_lsu",
+    ytitle = "Livestock Units",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "total_lsu",
+    facet = "location_level_one_name",
+    ytitle = "Livestock Units",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "total_lsu")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "total_lsu",
+          title = "Livestock Units" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "total_lsu",
+          title = "Livestock Units")
+```

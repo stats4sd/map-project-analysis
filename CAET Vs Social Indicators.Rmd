@@ -1,0 +1,521 @@
+---
+title: "CAET vs Social Indicators"
+output: html_document
+date: "2024-02-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = FALSE,
+    error = FALSE,
+    message = FALSE
+)
+
+#renv::restore()
+
+# Load Libraries
+library(tidyverse)
+library(openxlsx)
+library(flextable)
+library(fmsb)
+
+#read in performance data
+Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Main Survey",
+                        check.names = TRUE)
+
+Indicators <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Calculated Indicators",
+                        check.names = TRUE)%>%
+  select(farm_id, dietary_diversity:pest_score)%>%
+  select(-c(inc3,structure, compaction, depth, residues,
+            color, water_ret, cover, erosion, invertebrates, microbio))
+
+data <- left_join(Main_Survey,
+                         Indicators)
+
+#import functions to use for analysis
+source("../functions.R")
+```
+
+## Women's Empowerment
+
+### Women Empowerment score A-WEAI
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "AWEAI",
+    ytitle = "Women Empowerment score A-WEAI (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "AWEAI",
+    facet = "location_level_one_name",
+    ytitle = "Women Empowerment score A-WEAI (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "AWEAI")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "AWEAI",
+          title = "Women Empowerment score A-WEAI (0-100%)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "AWEAI",
+          title = "Women Empowerment score A-WEAI (0-100%)")
+```
+
+### Gender Parity Index
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "GPI",
+    ytitle = "Gender Parity Index (0-100%)",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "GPI",
+    facet = "location_level_one_name",
+    ytitle = "Gender Parity Index (0-100%)",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "GPI")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "GPI",
+          title = "Gender Parity Index (0-100%)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "GPI",
+          title = "Gender Parity Index (0-100%)")
+```
+
+
+### Percentage of female adults (15+ yo) in the household working in agriculture
+
+```{r}
+janitor::tabyl(data, hh_women, pro_soils_group)%>%
+    janitor::adorn_percentages(denominator = "col")%>%
+    janitor::adorn_pct_formatting()%>%
+    janitor::adorn_ns()%>%
+    flextable::flextable()%>%
+    flextable::set_header_labels(values = list(
+        hh_women = "Number of\nadult women\nin the household",
+        `0` = "Non-ProSoils",
+        `1` = "ProSoils"
+    ))%>%
+    flextable::autofit()
+```
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_fadult_ag",
+    ytitle = "Percentage of female adults (15+ yo) in\nthe household working in agriculture (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_fadult_ag",
+    facet = "location_level_one_name",
+    ytitle = "Percentage of female adults (15+ yo) in\nthe household working in agriculture (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "pct_fadult_ag")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "pct_fadult_ag",
+          title = "Percentage of female adults (15+ yo) in\nthe household working in agriculture (0-100%) (0-100%)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "pct_fadult_ag",
+          title = "Percentage of female adults (15+ yo) in\nthe household working in agriculture (0-100%) (0-100%)")
+```
+
+## Youth Empowerment
+
+### Youth Employment score 
+
+#### Overall Scatter
+
+Overall Score
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_employ",
+    ytitle = "Youth Employment score (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_employ",
+    facet = "location_level_one_name",
+    ytitle = "Youth Employment score  (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "youth_employ")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "youth_employ",
+          title = "Youth Employment score (0-100%)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "youth_employ",
+          title = "Youth Employment score (0-100%)")
+```
+
+
+### Youth Emigration score 
+
+#### Overall Scatter
+
+Overall Score
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_emigr",
+    ytitle = "Youth Emigration score (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_emigr",
+    facet = "location_level_one_name",
+    ytitle = "Youth Emigration score  (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "youth_emigr")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "youth_emigr",
+          title = "Youth Emigration score (0-100%)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "youth_emigr",
+          title = "Youth Emigration score (0-100%)")
+```
+
+### Overall Youth score 
+
+#### Overall Scatter
+
+Overall
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_score",
+    ytitle = "Overall Youth score (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_score",
+    facet = "location_level_one_name",
+    ytitle = "Overall Youth score  (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "youth_score")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "youth_score",
+          title = "Overall Youth score (0-100%)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "youth_score",
+          title = "Overall Youth score (0-100%)")
+```
+
+
+### Percentage of youth (15-34 yo) in the household working in agriculture 
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_youth_ag",
+    ytitle = "Percentage of youth (15-34 yo) in\nthe household working in agriculture (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_youth_ag",
+    facet = "location_level_one_name",
+    ytitle = "Percentage of youth (15-34 yo) in\nthe household working in agriculture  (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "pct_youth_ag")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "pct_youth_ag",
+          title = "Percentage of youth (15-34 yo) in\nthe household working in agriculture (0-100%)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "pct_youth_ag",
+          title = "Percentage of youth (15-34 yo) in\nthe household working in agriculture (0-100%)")
+```
+
+## Other
+
+### Percentage of children in the household working in agriculture 
+
+```{r}
+janitor::tabyl(data, hh_children, pro_soils_group)%>%
+    janitor::adorn_percentages(denominator = "col")%>%
+    janitor::adorn_pct_formatting()%>%
+    janitor::adorn_ns()%>%
+    flextable::flextable()%>%
+    flextable::set_header_labels(values = list(
+        hh_children = "Number of\nchidlren (<15)\nin the household",
+        `0` = "Non-ProSoils",
+        `1` = "ProSoils"
+    ))%>%
+    flextable::autofit()
+```
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_ag_children",
+    ytitle = "Percentage of children\nin the household working in agriculture (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_ag_children",
+    facet = "location_level_one_name",
+    ytitle = "Percentage of children\nin the household working in agriculture  (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "pct_ag_children")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "pct_ag_children",
+          title = "Percentage of children\nin the household working in agriculture (0-100%)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "pct_ag_children",
+          title = "Percentage of children\nin the household working in agriculture (0-100%)")
+```
+
+### Percentage of family in the household working in agriculture 
+
+#### Overall Scatter
+
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_family_ag",
+    ytitle = "Percentage of family\nin the household working in agriculture (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_family_ag",
+    facet = "location_level_one_name",
+    ytitle = "Percentage of family\nin the household working in agriculture  (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "pct_family_ag")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "pct_family_ag",
+          title = "Percentage of family\nin the household working in agriculture (0-100%)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "pct_family_ag",
+          title = "Percentage of family\nin the household working in agriculture (0-100%)")
+```

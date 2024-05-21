@@ -1,0 +1,1452 @@
+---
+title: "Soil Sample Results - Kenya"
+output: html_document
+date: "2024-04-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = FALSE,
+    error = FALSE,
+    message = FALSE
+)
+
+# Load Libraries
+library(tidyverse)
+library(openxlsx)
+library(agricolae)
+library(flextable)
+library(fmsb)
+library(ggpubr)
+library(gtsummary)
+
+'%!in%' <- function(x,y)!('%in%'(x,y))
+
+#read in performance data
+Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
+                         sheet = "Main Survey",
+                         check.names = TRUE)
+
+soil_data <- read.xlsx("FILEPATH TO DATA HERE",
+                         sheet = "soil_lab_data",
+                         check.names = TRUE)
+  select(farm_id, soil_sample_label:soil_textural_class)
+
+indicators <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Calculated Indicators",
+                        check.names = TRUE)
+  select(farm_id, soil_health)
+
+
+data <- left_join(
+  Main_Survey,
+  soil_data
+)%>%
+  left_join(indicators)
+```
+
+## Soil PH
+
+```{r}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(
+           x = totscore_caet,
+           y = ph,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = "Total CAET Score",
+         y = "pH",
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    scale_x_continuous(limits = c(0, 100))+
+  border()                            
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(y = ph,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = "pH",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+  border()                            
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(x = totscore_caet,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = "Total CAET Score",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "bottom") +
+    scale_x_continuous(limits = c(0, 100))+
+  border()                            
+
+tab <- data%>%
+    group_by(pro_soils_group)%>%
+    rename("pH" = ph)%>%
+    summarise(
+        Mean = mean(pH, na.rm = T),
+        Median = median(pH, na.rm = T),
+        SD = sd(pH, na.rm = T),
+        IQR = paste0(formatC(as.numeric(quantile(pH,0.25, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     "-",
+                     formatC(as.numeric(quantile(pH,0.75, na.rm = T)), format = 'f', flag='0', digits = 1))
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -pro_soils_group,
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = Group, values_from = Estimate)
+
+stable.p <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 8),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+annotate_figure(plotfull,top = text_grob("Soil pH", 
+               color = "black", face = "bold", size = 14))
+```
+
+```{r, fig.height=7, fig.width=7}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(
+           x = totscore_caet,
+           y = ph,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    facet_wrap(~location_level_one_name, 
+               ncol = 2)+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    scale_x_continuous(limits = c(0, 100))+
+    border()
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(y = ph,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+    border()
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(x = totscore_caet,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name,
+               ncol=2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "none") +
+    scale_x_continuous(limits = c(0, 100))+
+    border()
+
+tab <- data%>%
+  filter(!is.na(location_level_one_name))%>%
+    group_by(location_level_one_name, pro_soils_group)%>%
+    rename("pH" = ph)%>%
+    summarise(
+        Mean = mean(pH, na.rm = T),
+        SD = sd(pH, na.rm = T),
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -c(pro_soils_group,location_level_one_name),
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = location_level_one_name, values_from = Estimate)
+
+stable.p1 <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 5),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, NULL, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil pH", 
+               color = "black", face = "bold", size = 12, rot = 90))
+
+annotate_figure(plotfull,bottom = text_grob("Total CAET Score", 
+               color = "black", face = "bold", size = 12))
+```
+
+## Soil SOC
+
+```{r}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(
+           x = totscore_caet,
+           y = soc,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = "Total CAET Score",
+         y = "SOC",
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    scale_x_continuous(limits = c(0, 100))+
+  border()                            
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(y = soc,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = "SOC",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+  border()                            
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(x = totscore_caet,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = "Total CAET Score",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "bottom") +
+    scale_x_continuous(limits = c(0, 100))+
+  border()                            
+
+tab <- data%>%
+    group_by(pro_soils_group)%>%
+    rename("SOC" = soc)%>%
+    summarise(
+        Mean = mean(SOC,na.rm = T),
+        Median = median(SOC,na.rm = T),
+        SD = sd(SOC,na.rm = T),
+        IQR = paste0(formatC(as.numeric(quantile(SOC,0.25,na.rm = T)), format = 'f', flag='0', digits = 1),
+                     "-",
+                     formatC(as.numeric(quantile(SOC,0.75,na.rm = T)), format = 'f', flag='0', digits = 1))
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -pro_soils_group,
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = Group, values_from = Estimate)
+
+stable.p <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 8),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+annotate_figure(plotfull,top = text_grob("Soil SOC", 
+               color = "black", face = "bold", size = 14))
+```
+
+```{r, fig.height=7, fig.width=7}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(
+           x = totscore_caet,
+           y = soc,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    facet_wrap(~location_level_one_name)+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    scale_x_continuous(limits = c(0, 100))+
+    border()
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(y = soc,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+    border()
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(x = totscore_caet,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "none") +
+    scale_x_continuous(limits = c(0, 100))+
+    border()
+
+tab <- data%>%
+  filter(!is.na(location_level_one_name))%>%
+    group_by(location_level_one_name, pro_soils_group)%>%
+    rename("SOC" = soc)%>%
+    summarise(
+        Mean = mean(SOC, na.rm = T),
+        SD = sd(SOC, na.rm = T),
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -c(pro_soils_group,location_level_one_name),
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = location_level_one_name, values_from = Estimate)
+
+stable.p1 <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 5),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, NULL, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil SOC", 
+               color = "black", face = "bold", size = 12, rot = 90))
+
+annotate_figure(plotfull,bottom = text_grob("Total CAET Score", 
+               color = "black", face = "bold", size = 12))
+```
+
+## Soil TN
+
+```{r}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(
+           x = totscore_caet,
+           y = tn,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = "Total CAET Score",
+         y = "TN",
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    scale_x_continuous(limits = c(0, 100))+
+  border()                            
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(y = tn,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = "TN",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+  border()                            
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(x = totscore_caet,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = "Total CAET Score",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "bottom") +
+    scale_x_continuous(limits = c(0, 100))+
+  border()                            
+
+tab <- data%>%
+    group_by(pro_soils_group)%>%
+    rename("TN" = tn)%>%
+    summarise(
+        Mean = mean(TN, na.rm = T),
+        Median = median(TN, na.rm = T),
+        SD = sd(TN, na.rm = T),
+        IQR = paste0(formatC(as.numeric(quantile(TN,0.25, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     "-",
+                     formatC(as.numeric(quantile(TN,0.75, na.rm = T)), format = 'f', flag='0', digits = 1))
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -pro_soils_group,
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = Group, values_from = Estimate)
+
+stable.p <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 8),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+annotate_figure(plotfull,top = text_grob("Soil TN", 
+               color = "black", face = "bold", size = 14))
+```
+
+```{r, fig.height=7, fig.width=7}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(
+           x = totscore_caet,
+           y = tn,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    facet_wrap(~location_level_one_name)+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    scale_x_continuous(limits = c(0, 100))+
+    border()
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(y = tn,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+    border()
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(x = totscore_caet,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name,
+               ncol = 2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "none") +
+    scale_x_continuous(limits = c(0, 100))+
+    border()
+
+tab <- data%>%
+  filter(!is.na(location_level_one_name))%>%
+    group_by(location_level_one_name, pro_soils_group)%>%
+    rename("TN" = tn)%>%
+    summarise(
+        Mean = mean(TN, na.rm = T),
+        SD = sd(TN, na.rm = T),
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -c(pro_soils_group,location_level_one_name),
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = location_level_one_name, values_from = Estimate)
+
+stable.p1 <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 5),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, NULL, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil TN", 
+               color = "black", face = "bold", size = 12, rot = 90))
+
+annotate_figure(plotfull,bottom = text_grob("Total CAET Score", 
+               color = "black", face = "bold", size = 12))
+```
+
+
+## Soil PH - Soil Health
+
+```{r}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(
+           x = soil_health,
+           y = ph,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = "Soil Health Index",
+         y = "pH",
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+  border()                            
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(y = ph,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = "pH",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+  border()                            
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(x = soil_health,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = "Soil Health Index",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "bottom") +
+  border()                            
+
+tab <- data%>%
+    group_by(pro_soils_group)%>%
+    rename("pH" = ph)%>%
+    summarise(
+        Mean = mean(pH, na.rm = T),
+        Median = median(pH, na.rm = T),
+        SD = sd(pH, na.rm = T),
+        IQR = paste0(formatC(as.numeric(quantile(pH,0.25, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     "-",
+                     formatC(as.numeric(quantile(pH,0.75, na.rm = T)), format = 'f', flag='0', digits = 1))
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -pro_soils_group,
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = Group, values_from = Estimate)
+
+stable.p <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 8),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+annotate_figure(plotfull,top = text_grob("Soil pH", 
+               color = "black", face = "bold", size = 14))
+```
+
+```{r, fig.height=7, fig.width=7}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(
+           x = soil_health,
+           y = ph,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    facet_wrap(~location_level_one_name)+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    border()
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(y = ph,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+    border()
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(x = soil_health,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name,
+               ncol = 2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "none") +
+    border()
+
+tab <- data%>%
+  filter(!is.na(location_level_one_name))%>%
+    group_by(location_level_one_name, pro_soils_group)%>%
+    rename("pH" = ph)%>%
+    summarise(
+        Mean = mean(pH, na.rm = T),
+        SD = sd(pH, na.rm = T),
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -c(pro_soils_group,location_level_one_name),
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = location_level_one_name, values_from = Estimate)
+
+stable.p1 <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 5),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, NULL, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil pH", 
+               color = "black", face = "bold", size = 12, rot = 90))
+
+annotate_figure(plotfull,bottom = text_grob("Soil Health Index", 
+               color = "black", face = "bold", size = 12))
+```
+
+## Soil SOC - Soil Health
+
+```{r}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(
+           x = soil_health,
+           y = soc,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = "Soil Health Index",
+         y = "SOC",
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+  border()                            
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(y = soc,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = "SOC",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+  border()                            
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(x = soil_health,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = "Soil Health Index",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "bottom") +
+  border()                            
+
+tab <- data%>%
+    group_by(pro_soils_group)%>%
+    rename("SOC" = soc)%>%
+    summarise(
+        Mean = mean(SOC, na.rm = T),
+        Median = median(SOC, na.rm = T),
+        SD = sd(SOC, na.rm = T),
+        IQR = paste0(formatC(as.numeric(quantile(SOC,0.25, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     "-",
+                     formatC(as.numeric(quantile(SOC,0.75, na.rm = T)), format = 'f', flag='0', digits = 1))
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -pro_soils_group,
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = Group, values_from = Estimate)
+
+stable.p <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 8),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+annotate_figure(plotfull,top = text_grob("Soil SOC", 
+               color = "black", face = "bold", size = 14))
+```
+
+```{r, fig.height=7, fig.width=7}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(
+           x = soil_health,
+           y = soc,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    facet_wrap(~location_level_one_name)+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    border()
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(y = soc,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+    border()
+
+p3 <- ggplot(data %>%
+          filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(x = soil_health,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name,
+               ncol = 2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "none") +
+    border()
+
+tab <- data%>%
+  filter(!is.na(location_level_one_name))%>%
+    group_by(location_level_one_name, pro_soils_group)%>%
+    rename("SOC" = soc)%>%
+    summarise(
+        Mean = mean(SOC, na.rm = T),
+        SD = sd(SOC, na.rm = T),
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -c(pro_soils_group,location_level_one_name),
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = location_level_one_name, values_from = Estimate)
+
+stable.p1 <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 5),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, NULL, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil SOC", 
+               color = "black", face = "bold", size = 12, rot = 90))
+
+annotate_figure(plotfull,bottom = text_grob("Soil Health Index", 
+               color = "black", face = "bold", size = 12))
+```
+
+## Soil TN - Soil Health
+
+```{r}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(
+           x = soil_health,
+           y = tn,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = "Soil Health Index",
+         y = "TN",
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+  border()                            
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(y = tn,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = "TN",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+  border()                            
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group)),
+       aes(x = soil_health,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = "Soil Health Index",
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "bottom") +
+  border()                            
+
+tab <- data%>%
+    group_by(pro_soils_group)%>%
+    rename("TN" = tn)%>%
+    summarise(
+        Mean = mean(TN, na.rm = T),
+        Median = median(TN, na.rm = T),
+        SD = sd(TN, na.rm = T),
+        IQR = paste0(formatC(as.numeric(quantile(TN,0.25, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     "-",
+                     formatC(as.numeric(quantile(TN,0.75, na.rm = T)), format = 'f', flag='0', digits = 1))
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -pro_soils_group,
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = Group, values_from = Estimate)
+
+stable.p <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 8),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+annotate_figure(plotfull,top = text_grob("Soil TN", 
+               color = "black", face = "bold", size = 14))
+```
+
+```{r, fig.height=7, fig.width=7}
+p1 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(
+           x = soil_health,
+           y = tn,
+           color = as.factor(pro_soils_group)
+       )) +
+    geom_point(size = 1) +
+    geom_smooth()+
+    facet_wrap(~location_level_one_name)+
+    scale_colour_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         colour = NULL)+
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    border()
+    
+p2 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(y = tn,
+           x = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(x = NULL,
+         y = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.x = element_blank())+
+    theme(legend.position = "bottom")+
+    border()
+
+p3 <- ggplot(data %>%
+           filter(!is.na(pro_soils_group) &
+                    !is.na(location_level_one_name)),
+       aes(x = soil_health,
+           y = as.factor(pro_soils_group),
+           fill = as.factor(pro_soils_group)
+       )) +
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name,
+               ncol = 2)+
+    scale_fill_manual(
+        values = c("grey4", "forestgreen"),
+        labels = c("Non-ProSoils", "ProSoils")
+    ) +
+    labs(y = NULL,
+         x = NULL,
+         fill = NULL)+
+    theme_bw() +
+    theme(axis.text.y = element_blank())+
+    theme(legend.position = "none") +
+    border()
+
+tab <- data%>%
+  filter(!is.na(location_level_one_name))%>%
+    group_by(location_level_one_name, pro_soils_group)%>%
+    rename("TN" = tn)%>%
+    summarise(
+        Mean = mean(TN, na.rm = T),
+        SD = sd(TN, na.rm = T),
+    )%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate_if(is.numeric, function(x) round(x,1))%>%
+    mutate(pro_soils_group = c("Non-ProSoils", "ProSoils"))%>%
+    pivot_longer(cols = -c(pro_soils_group,location_level_one_name),
+                 names_to = "Statistic",
+                 values_to = "Estimate",
+                 values_transform = as.character)%>%
+    rename("Group" = pro_soils_group)%>%
+        pivot_wider(names_from = location_level_one_name, values_from = Estimate)
+
+stable.p1 <- ggtexttable(tab, rows = NULL, 
+                        theme = ttheme("mGreen",
+                                       base_size = 5),
+                            )
+
+yplot <- p2 + clean_theme()
+xplot <- p3 + clean_theme()
+
+# Arranging the plot
+plotfull <- ggarrange(xplot, NULL, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv", 
+          widths = c(1.5, 1), heights = c(1, 1.5),
+          common.legend = TRUE,
+          legend = "top")
+
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil TN", 
+               color = "black", face = "bold", size = 12, rot = 90))
+
+annotate_figure(plotfull,bottom = text_grob("Soil Health Index", 
+               color = "black", face = "bold", size = 12))
+```
+
+## Summary Stats by ProSoils
+
+```{r}
+data%>%
+   select(ph, soc, tn, "m3.ai" = m3_ai,"m3.b" = m3_b,"m3.ca" = m3_ca,
+          "m3.fe" = m3_fe,"m3.k" = m3_k,"m3.mg" = m3_mg,"m3.mn" = m3_mn,"ex.ac" = ex_ac,
+          psi, cec, pro_soils_group)%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate(pro_soils_group = ifelse(pro_soils_group==1, "ProSoils", "Non-ProSoils"))%>%
+    group_by(pro_soils_group)%>%
+    summarise_if(is.numeric,
+                 .funs = list(
+                     Mean = function(x) formatC(as.numeric(mean(x, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     Median = function(x) formatC(as.numeric(median(x, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     SD = function(x) formatC(as.numeric(sd(x, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     IQR =  function(x) paste0(formatC(as.numeric(quantile(x,0.25, na.rm = T)), format = 'f', flag='0', digits = 1)
+                                               , " - ",
+                                               formatC(as.numeric(quantile(x,0.75, na.rm = T)), format = 'f', flag='0', digits = 1))
+                  ))%>%
+    pivot_longer(-pro_soils_group, values_transform = as.character, )%>%
+    separate_wider_delim(name, "_", names = c("Var", "Stat"))%>%
+    pivot_wider(names_from = Stat, values_from = value)%>%
+    arrange(Var) -> x
+
+data%>%
+      select(ph, soc, tn, "m3.ai" = m3_ai,"m3.b" = m3_b,"m3.ca" = m3_ca,
+          "m3.fe" = m3_fe,"m3.k" = m3_k,"m3.mg" = m3_mg,"m3.mn" = m3_mn,"ex.ac" = ex_ac,
+          psi, cec, pro_soils_group)%>%
+    filter(!is.na(pro_soils_group))%>%
+    mutate(pro_soils_group = ifelse(pro_soils_group==1, "ProSoils", "Non-ProSoils"))%>%
+    pivot_longer(cols = -pro_soils_group, names_to = "Var")%>%
+    tidyr::nest(data = c(pro_soils_group,value))%>%
+    dplyr::mutate(data = purrr::map(data, ~ {
+                out <- t.test(.x$value ~ .x$pro_soils_group)
+                tibble::tibble(
+                    p.value = out$p.value
+                )
+            })) %>%
+            tidyr::unnest(cols = data) ->y
+
+left_join(x,y)%>%
+    as_grouped_data("Var")%>%
+    mutate_at(vars(Mean:SD), as.numeric)%>%
+    flextable()%>%
+    set_header_labels(values = list(
+        Var = "Measure",
+        pro_soils_group = "Group",
+        p.value = "T-Test result\n(p-value)"
+    )
+    )%>%
+    colformat_double(j = 7,digits = 3)%>%
+    align(j = 6, align = "center", part = "all")%>%
+    autofit()%>%
+    width(j = 6, width = 1.5)%>%
+    merge_v(j = 7)%>%
+    fix_border_issues()
+```
+
+```{r}
+data%>%
+      select(ph, soc, tn, "m3.ai" = m3_ai,"m3.b" = m3_b,"m3.ca" = m3_ca,
+          "m3.fe" = m3_fe,"m3.k" = m3_k,"m3.mg" = m3_mg,"m3.mn" = m3_mn,"ex.ac" = ex_ac,
+          psi, cec, pro_soils_group, location_level_one_name)%>%
+    filter(!is.na(pro_soils_group) & !is.na(location_level_one_name))%>%
+    mutate(pro_soils_group = ifelse(pro_soils_group==1, "ProSoils", "Non-ProSoils"))%>%
+    group_by(location_level_one_name, pro_soils_group)%>%
+    summarise_if(is.numeric,
+                 .funs = list(
+                     Mean = function(x) formatC(as.numeric(mean(x, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     Median = function(x) formatC(as.numeric(median(x, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     SD = function(x) formatC(as.numeric(sd(x, na.rm = T)), format = 'f', flag='0', digits = 1),
+                     IQR =  function(x) paste0(formatC(as.numeric(quantile(x,0.25, na.rm = T)), format = 'f', flag='0', digits = 1)
+                                               , " - ",
+                                               formatC(as.numeric(quantile(x,0.75, na.rm = T)), format = 'f', flag='0', digits = 1))
+                 ))%>%
+    pivot_longer(-c(location_level_one_name,pro_soils_group), values_transform = as.character)%>%
+    separate_wider_delim(name, "_", names = c("Var", "Stat"))%>%
+    pivot_wider(names_from = Stat, values_from = value)%>%
+    arrange(Var) -> x
+
+data%>%
+      select(ph, soc, tn, "m3.ai" = m3_ai,"m3.b" = m3_b,"m3.ca" = m3_ca,
+          "m3.fe" = m3_fe,"m3.k" = m3_k,"m3.mg" = m3_mg,"m3.mn" = m3_mn,"ex.ac" = ex_ac,
+          psi, cec, pro_soils_group, location_level_one_name)%>%
+    filter(!is.na(pro_soils_group)& !is.na(location_level_one_name))%>%
+    mutate(pro_soils_group = ifelse(pro_soils_group==1, "ProSoils", "Non-ProSoils"))%>%
+    pivot_longer(cols = -c(location_level_one_name,pro_soils_group), names_to = "Var")%>%
+    tidyr::nest(data = c(pro_soils_group,value))%>%
+    dplyr::mutate(data = purrr::map(data, ~ {
+                out <- t.test(.x$value ~ .x$pro_soils_group)
+                tibble::tibble(
+                    p.value = out$p.value
+                )
+            })) %>%
+            tidyr::unnest(cols = data) ->y
+
+left_join(x,y)%>%
+    as_grouped_data(c("Var", "location_level_one_name"))%>%
+    mutate(x = row_number()) -> z
+
+myList <- seq(5, 200, 4)
+myList <- myList[seq_along(myList)%%3!=0]
+
+z%>%
+    filter(x %!in% myList)%>%
+    select(-x)%>%
+    mutate_at(vars(Mean:SD), as.numeric)%>%
+    flextable()%>%
+    set_header_labels(values = list(
+        Var = "Measure",
+        location_level_one_name = "Region",
+        pro_soils_group = "Group",
+        p.value = "T-Test result\n(p-value)"
+    )
+    )%>%
+    colformat_double(j = 8,digits = 3)%>%
+    align(j = 7, align = "center", part = "all")%>%
+    autofit()%>%
+    width(j = 7, width = 1.5)%>%
+    merge_v(j = 8)%>%
+    merge_v(j = 2, )%>%
+    fix_border_issues()
+```
+
+

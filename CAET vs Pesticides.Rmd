@@ -1,0 +1,452 @@
+---
+title: "CAET vs Pesticides"
+output: html_document
+date: "2024-02-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = FALSE,
+    error = FALSE,
+    message = FALSE
+)
+
+#renv::restore()
+
+# Load Libraries
+library(tidyverse)
+library(openxlsx)
+library(flextable)
+library(fmsb)
+
+#read in performance data
+Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Main Survey",
+                        check.names = TRUE)
+
+Indicators <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Calculated Indicators",
+                        check.names = TRUE)%>%
+  select(farm_id, dietary_diversity:pest_score)%>%
+  select(-c(inc3,structure, compaction, depth, residues,
+            color, water_ret, cover, erosion, invertebrates, microbio))
+
+data <- left_join(Main_Survey,
+                         Indicators)
+
+#import functions to use for analysis
+source("../functions.R")
+```
+
+## Exposure to Pesticides
+
+### Quantity of chemical pesticides used
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "cpused",
+    ytitle = "Quantity of chemical pesticides used",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "coused",
+    facet = "location_level_one_name",
+    ytitle = "Quantity of chemical pesticides used",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "cpused")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "cpused",
+          title = "Quantity of chemical pesticides used" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "cpused",
+          title = "Quantity of chemical pesticides used")
+```
+
+### Used extremely toxic chemical pesticides
+
+#### Fisher Test
+
+```{r}
+indicator_fisher_test("ctox1",
+                      "Used extremely toxic pesticides")
+```
+
+#### T-test of mean caet score extreme toxicity chemical pesticide use
+
+```{r}
+data %>%
+    dplyr::select(totscore_caet, ctox1, pro_soils_group) %>%
+    dplyr::mutate(pro_soils_group = ifelse(pro_soils_group == 1,
+                                            "ProSoils",
+                                            "Non-ProSoils")) %>%
+    tidyr::nest(data = c(totscore_caet, ctox1)) %>%
+    dplyr::mutate(data = purrr::map(data, ~ {
+        out <- t.test(.x$totscore_caet ~ .x$ctox1)
+        tibble::tibble(
+            "No extreme toxicity" = out$estimate[1],
+            "Using extremely toxic pesticides" = out$estimate[2],
+            Difference = out$estimate[1] - out$estimate[2],
+            `t-value` = out$statistic,
+            p.value = out$p.value
+        )
+    })) %>%
+    tidyr::unnest(cols = data) %>%
+    flextable::flextable() %>%
+    flextable::colformat_double(j = 2:5, digits = 1) %>%
+    flextable::colformat_double(j = 6, digits = 3) %>%
+    flextable::theme_alafoli() %>%
+    flextable::bg(part = "all", bg = "white") %>%
+    flextable::autofit()
+```
+
+### Used moderately toxic chemical pesticides
+
+#### Fisher Test
+
+```{r}
+indicator_fisher_test("ctox2",
+                      "Used moderately toxic pesticides")
+```
+
+#### T-test of mean caet score moderate toxicity chemical pesticide use
+
+```{r}
+data %>%
+    dplyr::select(totscore_caet, ctox2, pro_soils_group) %>%
+    dplyr::mutate(pro_soils_group = ifelse(pro_soils_group == 1,
+                                            "ProSoils",
+                                            "Non-ProSoils")) %>%
+    tidyr::nest(data = c(totscore_caet, ctox2)) %>%
+    dplyr::mutate(data = purrr::map(data, ~ {
+        out <- t.test(.x$totscore_caet ~ .x$ctox2)
+        tibble::tibble(
+            "No moderate toxicity" = out$estimate[1],
+            "Using moderately toxic pesticides" = out$estimate[2],
+            Difference = out$estimate[1] - out$estimate[2],
+            `t-value` = out$statistic,
+            p.value = out$p.value
+        )
+    })) %>%
+    tidyr::unnest(cols = data) %>%
+    flextable::flextable() %>%
+    flextable::colformat_double(j = 2:5, digits = 1) %>%
+    flextable::colformat_double(j = 6, digits = 3) %>%
+    flextable::theme_alafoli() %>%
+    flextable::bg(part = "all", bg = "white") %>%
+    flextable::autofit()
+```
+
+### Used moderately toxic organic pesticides
+
+(No extremely organic pesticides were used)
+
+#### Fisher Test
+
+```{r}
+indicator_fisher_test("otox2",
+                      "Used moderately toxic organic pesticides")
+```
+
+### Area of use of pesticides - Checmical
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "cpused_ha",
+    ytitle = "Area of use of pesticides - Checmical",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "coused",
+    facet = "location_level_one_name",
+    ytitle = "Area of use of pesticides - Checmical",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "cpused_ha")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "cpused_ha",
+          title = "Area of use of pesticides - Checmical" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "cpused_ha",
+          title = "Area of use of pesticides - Checmical")
+```
+
+### Area of use of pesticides - organic
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "coused_ha",
+    ytitle = "Area of use of pesticides - organic",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "coused_ha",
+    facet = "location_level_one_name",
+    ytitle = "Area of use of pesticides - organic",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "coused_ha")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "coused_ha",
+          title = "Area of use of pesticides - organic" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "coused_ha",
+          title = "Area of use of pesticides - organic")
+```
+
+### Number of mitigations strategies
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "mitigation_num",
+    ytitle = "Number of mitigations strategies",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "mitigation_num",
+    facet = "location_level_one_name",
+    ytitle = "Number of mitigations strategies",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "mitigation_num")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "mitigation_num",
+          title = "Number of mitigations strategies" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "mitigation_num",
+          title = "Number of mitigations strategies")
+```
+
+```{r}
+# data%>%
+#     select(pro_soils_group, mitig1:mitig7)%>%
+#     mutate_all(function(x) replace_na(x,0))%>%
+#     pivot_longer(mitig1:mitig7, names_to = "Strategy")%>%
+#     mutate(Strategy = case_when(
+#         Strategy == "mitig1" ~ "Mask",
+#         Strategy == "mitig2" ~ "Body Protection",
+#         Strategy == "mitig3" ~ "Special Protection",
+#         Strategy == "mitig4" ~ "Visible signs of danger after spraying",
+#         Strategy == "mitig5" ~ "Community is informed of the danger",
+#         Strategy == "mitig6" ~ "Secure disposal of the empty containers after use",
+#         Strategy == "mitig7" ~ "Other"
+#     ))%>%
+#     mutate(pro_soils_group = ifelse(pro_soils_group == 1, "ProSoils", "Non-ProSoils"))%>%
+#     group_by(pro_soils_group, Strategy)%>%
+#     summarise(perc = mean(value),
+#               n = sum(value))%>%
+#     mutate(perc_n = paste0(round(perc*100,1), "% (", n, ")"))%>%
+#     select(-perc, - n)%>%
+#     pivot_wider(names_from = pro_soils_group, values_from = perc_n)%>%
+#     flextable()%>%
+#     autofit()
+```
+
+### Number of ecological pest management practices
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "ecoman_num",
+    ytitle = "Number of ecological pest management practices",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "ecoman_num",
+    facet = "location_level_one_name",
+    ytitle = "Number of ecological pest management practices",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "ecoman_num")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "ecoman_num",
+          title = "Number of ecological pest management practices" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "ecoman_num",
+          title = "Number of ecological pest management practices")
+```
+
+```{r}
+# data%>%
+#     select(pro_soils_group, ecoman1:ecoman5,ecoman77)%>%
+#     mutate_all(function(x) replace_na(x,0))%>%
+#     pivot_longer(ecoman1:ecoman77, names_to = "Strategy")%>%
+#     mutate(Strategy = case_when(
+#         Strategy == "ecoman1" ~ "Cultural control",
+#         Strategy == "ecoman2" ~ "Plantation of natural repelling plants",
+#         Strategy == "ecoman3" ~ "Use of cover crops to increase biological interactions",
+#         Strategy == "ecoman4" ~ "Favor the reproduction of beneficial organisms for biological-control",
+#         Strategy == "ecoman5" ~ "Favor biodiversity and spatial diversity within the agroecosystem",
+#         Strategy == "ecoman77" ~ "Other",
+#     ))%>%
+#     mutate(pro_soils_group = ifelse(pro_soils_group == 1, "ProSoils", "Non-ProSoils"))%>%
+#     group_by(pro_soils_group, Strategy)%>%
+#     summarise(perc = mean(value),
+#               n = sum(value))%>%
+#     mutate(perc_n = paste0(round(perc*100,1), "% (", n, ")"))%>%
+#     select(-perc, - n)%>%
+#     pivot_wider(names_from = pro_soils_group, values_from = perc_n)%>%
+#     flextable()%>%
+#     autofit()
+```
+
+### Integrated Pest Management Score (0 - 100%)
+
+#### Overall Scatter
+
+```{r}
+ caet_performance_scatter(
+     x = "totscore_caet",
+     y = "pest_score",
+     ytitle = "Integrated Pest Management Score",
+     xtitle = "Total CAET Score",
+     min = 0,
+     max = 100
+ )
+```
+
+  By Region
+
+```{r}
+ caet_performance_scatter(
+     x = "totscore_caet",
+     y = "pest_score",
+     facet = "location_level_one_name",
+     ytitle = "Integrated Pest Management Score",
+     xtitle = "Total CAET Score",
+     min = 0,
+     max = 100
+ )
+```
+
+  Spearman's rank Correlations
+
+```{r}
+ correlations_table(indicator = "pest_score")
+```
+
+ Test of Mean - ProSoils vs Comparison
+
+```{r}
+ mean_test(indicator = "pest_score",
+           title = "Integrated Pest Management Score (0 - 100%)" )
+```
+
+  Test of Median - ProSoils vs Comparison
+
+ would not run - error
+
+```{r}
+#median_test(indicator = "pest_score",
+#           title = "Integrated Pest Management Score (0 - 100%)")
+```

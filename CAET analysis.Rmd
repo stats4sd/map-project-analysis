@@ -1,0 +1,182 @@
+---
+title: "CAET Step 1 Analysis - Kenya"
+output: html_document
+date: "2024-02-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = FALSE,
+    error = FALSE,
+    message = FALSE
+)
+
+#renv::restore()
+
+# Load Libraries
+library(tidyverse)
+library(openxlsx)
+library(flextable)
+library(fmsb)
+
+#read in performance data
+Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Main Survey",
+                        check.names = TRUE)%>%
+  filter(team_name == "Kenya Team")
+
+#import functions to use for analysis
+source("../functions.R")
+```
+
+### Overall
+
+#### Box/Violin Plot
+
+```{r}
+ggplot(Main_Survey, aes(y = totscore_caet, x = as.factor(pro_soils_group), fill = as.factor(pro_soils_group)))+
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_x_discrete(labels = c("Non-ProSoils", "ProSoils"))+
+    scale_fill_manual(values = c("grey32", "forestgreen"))+
+    labs(x = NULL,
+         y = "CAET Total Score")+
+    theme_bw()+
+    theme(legend.position = "none")
+```
+
+#### t-test of overall means
+
+```{r}
+    t.test(totscore_caet ~ pro_soils_group, data = Main_Survey) %>%
+        broom::tidy() %>%
+        dplyr::mutate(Group = "Overall") %>%
+        dplyr::select(
+            Group,
+            "Non-ProSoils" = estimate1,
+            "ProSoils" = estimate2,
+            "Difference" = estimate,
+            "t-value" = statistic,
+            p.value
+        ) %>%
+        flextable::flextable() %>%
+        flextable::colformat_double(j = 2:5, digits = 1) %>%
+        flextable::colformat_double(j = 6, digits = 3) %>%
+        flextable::theme_alafoli() %>%
+        flextable::bg(part = "all", bg = "white") %>%
+        flextable::autofit()
+```
+
+### By Region
+
+#### Box/Violin Plot
+
+```{r}
+ggplot(Main_Survey, aes(y = totscore_caet, x = as.factor(pro_soils_group), fill = as.factor(pro_soils_group)))+
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    facet_wrap(~location_level_one_name)+
+    scale_x_discrete(labels = c("Non-ProSoils", "ProSoils"))+
+    scale_fill_manual(values = c("grey32", "forestgreen"))+
+    labs(x = NULL,
+         y = "CAET Total Score")+
+    theme_bw()+
+    theme(legend.position = "none")
+```
+
+#### T-Test of means
+
+```{r}
+Main_Survey %>%
+  select(totscore_caet, pro_soils_group,"Region" = location_level_one_name) %>%
+  nest(data = c(totscore_caet, pro_soils_group)) %>%
+  mutate(data = map(data, ~ {
+    out <- t.test(.x$totscore_caet ~ .x$pro_soils_group)
+    tibble("Non-ProSoils" = out$estimate[1], 
+           ProSoils = out$estimate[2],
+           Difference = `Non-ProSoils` - ProSoils,
+           `t-value` = out$statistic, p.value = out$p.value)
+  })) %>%
+  unnest(cols = data)%>%
+    arrange(Region)%>%
+    flextable()%>%
+    merge_v(j = 1)%>%
+        flextable::theme_alafoli() %>%
+    colformat_double(j = 2:5, digits = 1)%>%
+    colformat_double(j = 6, digits = 3)%>%
+    fix_border_issues()
+```
+
+### Individual Dimension Score Box/Violin Plots
+
+```{r}
+Main_Survey%>%
+    select(pro_soils_group,starts_with("stand_"))%>%
+        tidyr::pivot_longer(cols = starts_with("stand_"), names_to = "dimension")%>%
+        dplyr::mutate(dimension = case_when(
+            dimension == "stand_diversity" ~ "Diversity",
+            dimension == "stand_syn" ~ "Synergies",
+            dimension == "stand_rec" ~ "Recycling",
+            dimension == "stand_eff" ~ "Efficiency",
+            dimension == "stand_res" ~ "Resillience",
+            dimension == "stand_cultfood" ~ "Culture \n&\n Food Tradition",
+            dimension == "stand_cocrea" ~ "Co-creation\n&\nSharing\nof Knowledge",
+            dimension == "stand_human" ~ "Human\n&\nSocial Values",
+            dimension == "stand_circular" ~ "Circular\n&\nSolidarity Economy",
+            dimension == "stand_respgov" ~ "Responsible\nGovernance"
+        )
+        )%>%
+    ggplot(aes(y = value, x = as.factor(pro_soils_group), fill = as.factor(pro_soils_group)))+
+    facet_wrap(~dimension, nrow = 2)+
+    geom_violin(alpha = 0.5)+
+    geom_boxplot(width = 0.2)+
+    scale_x_discrete(labels = c("Non-ProSoils", "ProSoils"))+
+    scale_fill_manual(values = c("grey32", "forestgreen"))+
+    labs(x = NULL,
+         y = "Standardised Dimension Score",
+         subtitle = "Kenya")+
+    theme_bw()+
+    theme(legend.position = "none",
+          axis.text.x = element_text(size = 8))
+```
+
+### Radar Chart
+
+```{r, fig.height= 8, fig.width=8}
+Main_Survey%>%
+    select(pro_soils_group,starts_with("stand_"))%>%
+    group_by(pro_soils_group)%>%
+    summarise_if(is.numeric,mean)%>%
+    ungroup()%>%
+    select(-pro_soils_group)-> X #transform the data to get the means of each dimension
+
+rownames(X) <- c("Non-ProSoils", "Prosoils") #set the rownames to distinguish between the two groups
+
+X <- rbind(rep(100,10) , rep(0,10) , X)#add in rows to set the min and max of each dimension (0 - 100) to be used for the scale on the chart
+
+colnames(X) <- c("Diversity", "Synergies",
+                 "Efficiency", "Recycling", "Resillience",
+                 "Culture & Food Tradition",
+                 "Co-creation of Knowledge",
+                 "Human\n&\nSocial\nValues",
+                 "Circular\n&\nSolidarity\nEconomy",
+                 "Responsible Governance") #name the columns
+
+# Color vector
+colors_border=c(rgb(0.2,0.6,0,0.5), rgb(0,0,0,0.8)) #set the colours for the borders 
+colors_in=c(rgb(0.2,0.6,0,0.3), rgb(0,0,0,0.3)) #set the internal colours to be plotted
+
+X%>%
+    radarchart(axistype = 1 , 
+    #custom polygon
+    pcol=rev(colors_border) , pfcol=rev(colors_in) , plwd=4 , plty=1,
+    #custom the grid
+    cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,100,25), cglwd=0.8,
+    #custom labels
+    vlcex=0.8 
+    )
+
+#add a legend
+legend(x=-1.3, y=0.8, legend = c("Non-ProSoils", "ProSoils"), bty = "n", pch=20 , col=rev(colors_in) , text.col = "grey", cex=1.2, pt.cex=3)
+```

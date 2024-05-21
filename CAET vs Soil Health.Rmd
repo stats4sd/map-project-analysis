@@ -1,0 +1,654 @@
+---
+title: "CAET vs Soil Health"
+output: html_document
+date: "2024-02-22"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = FALSE,
+    error = FALSE,
+    message = FALSE
+)
+
+#renv::restore()
+
+# Load Libraries
+library(tidyverse)
+library(openxlsx)
+library(flextable)
+library(fmsb)
+
+#read in performance data
+Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Main Survey",
+                        check.names = TRUE)
+
+Indicators <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Calculated Indicators",
+                        check.names = TRUE)%>%
+  select(farm_id, dietary_diversity:pest_score)%>%
+  select(-c(inc3,structure, compaction, depth, residues,
+            color, water_ret, cover, erosion, invertebrates, microbio))
+
+data <- left_join(Main_Survey,
+                         Indicators)
+
+#import functions to use for analysis
+source("../functions.R")
+```
+
+## Soil Health
+
+### Soil Structure
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "structure",
+    ytitle = "Soil Structure",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "structure",
+    facet = "location_level_one_name",
+    ytitle = "Soil Structure",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "structure")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "structure",
+          title = "Soil Structure" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "structure",
+          title = "Soil Structure")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "structure",
+                      title = "Soil Structure")
+```
+
+### Soil compaction
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "compaction",
+    ytitle = "Soil compaction",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "compaction",
+    facet = "location_level_one_name",
+    ytitle = "Soil compaction",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "compaction")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "compaction",
+          title = "Soil compaction" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "compaction",
+          title = "Soil compaction")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "compaction",
+                      title = "Soil compaction")
+```
+
+
+### Soil depth
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "depth",
+    ytitle = "Soil depth",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "depth",
+    facet = "location_level_one_name",
+    ytitle = "Soil depth",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "depth")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "depth",
+          title = "Soil depth" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "depth",
+          title = "Soil depth")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "depth",
+                      title = "Soil depth")
+```
+
+
+### Soil residues
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "residues",
+    ytitle = "Status of residues",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "residues",
+    facet = "location_level_one_name",
+    ytitle = "Status of residues",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "residues")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "residues",
+          title = "Status of residues" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "residues",
+          title = "Status of residues")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "residues",
+                      title = "Status of residues")
+```
+
+### Soil color
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "color",
+    ytitle = "Soil color",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "color",
+    facet = "location_level_one_name",
+    ytitle = "Soil color",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "color")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "color",
+          title = "Soil color" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "color",
+          title = "Soil color")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "color",
+                      title = "Soil color")
+```
+
+### Soil water retention
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "water_ret",
+    ytitle = "Soil water retention",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "water_ret",
+    facet = "location_level_one_name",
+    ytitle = "Soil water retention",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "water_ret")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "water_ret",
+          title = "Soil water retention" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "water_ret",
+          title = "Soil water retention")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "water_ret",
+                      title = "Soil water retention")
+```
+
+### Soil cover
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "cover",
+    ytitle = "Soil cover",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "cover",
+    facet = "location_level_one_name",
+    ytitle = "Soil cover",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "cover")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "cover",
+          title = "Soil cover" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "cover",
+          title = "Soil cover")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "cover",
+                      title = "Soil cover")
+```
+
+### Soil erosion
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "erosion",
+    ytitle = "Soil erosion",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "erosion",
+    facet = "location_level_one_name",
+    ytitle = "Soil erosion",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "erosion")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "erosion",
+          title = "Soil erosion" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "erosion",
+          title = "Soil erosion")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "erosion",
+                      title = "Soil erosion")
+```
+
+### Presence of invertebrates
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "invertebrates",
+    ytitle = "Presence of invertebrates",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "invertebrates",
+    facet = "location_level_one_name",
+    ytitle = "Presence of invertebrates",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "invertebrates")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "invertebrates",
+          title = "Presence of invertebrates" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "invertebrates",
+          title = "Presence of invertebrates")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "invertebrates",
+                      title = "Presence of invertebrates")
+```
+
+### Presence of Microbiological activity
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "microbio",
+    ytitle = "Presence of Microbiological activity",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "microbio",
+    facet = "location_level_one_name",
+    ytitle = "Presence of Microbiological activity",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "microbio")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "microbio",
+          title = "Presence of Microbiological activity" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "microbio",
+          title = "Presence of Microbiological activity")
+```
+
+#### Fisher test
+
+```{r}
+indicator_fisher_test(indicator = "microbio",
+                      title = "Presence of Microbiological activity")
+```
+
+### Soil health index
+
+#### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "soil_health",
+    ytitle = "Soil health index",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "soil_health",
+    facet = "location_level_one_name",
+    ytitle = "Soil health index",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "soil_health")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "soil_health",
+          title = "Soil health index" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "soil_health",
+          title = "Soil health index")
+```
+

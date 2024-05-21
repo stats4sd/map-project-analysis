@@ -1,0 +1,824 @@
+---
+title: "CAET vs Economic Indicators"
+output: html_document
+date: "2024-02-22"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    warning = FALSE,
+    error = FALSE,
+    message = FALSE
+)
+
+#renv::restore()
+
+# Load Libraries
+library(tidyverse)
+library(openxlsx)
+library(flextable)
+library(fmsb)
+library(janitor)
+
+#read in performance data
+Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Main Survey",
+                        check.names = TRUE)
+
+Indicators <- read.xlsx("FILEPATH TO DATA HERE",
+                        sheet = "Calculated Indicators",
+                        check.names = TRUE)%>%
+  select(farm_id, dietary_diversity:pest_score)%>%
+  select(-c(inc3,structure, compaction, depth, residues,
+            color, water_ret, cover, erosion, invertebrates, microbio))
+
+data <- left_join(Main_Survey,
+                         Indicators)
+
+#import functions to use for analysis
+source("../functions.R")
+```
+
+## Value Added
+
+### Total expenditures for the purchase of seeds, fertilizers, pesticides, machineries
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "total_expenditures",
+    ytitle = "Total expenditures for the purchase of\nseeds, fertilizers, pesticides, machineries",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+##### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "total_expenditures",
+    facet = "location_level_one_name",
+    ytitle = "Total expenditures for the purchase of\nseeds, fertilizers, pesticides, machineries",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "total_expenditures")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "total_expenditures",
+          title = "Total expenditures for the purchase of\nseeds, fertilizers, pesticides, machineries" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "total_expenditures",
+          title = "Total expenditures for the purchase of\nseeds, fertilizers, pesticides, machineries")
+```
+
+### Value added (Total)
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "value_added",
+    ytitle = "Value added (total)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+##### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "value_added",
+    facet = "location_level_one_name",
+    ytitle = "Value added (total)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "value_added")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "value_added",
+          title = "Value added (total)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "value_added",
+          title = "Value added (total)")
+```
+
+### Value added (Per Person)
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "value_added_pcapita",
+    ytitle = "Value added (Per Person)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+##### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "value_added_pcapita",
+    facet = "location_level_one_name",
+    ytitle = "Value added (Per Person)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "value_added_pcapita")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "value_added_pcapita",
+          title = "Value added (Per Person)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "value_added_pcapita",
+          title = "Value added (Per Person)")
+```
+
+### Value added (Per ha)
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "value_added_ha",
+    ytitle = "Value added (Per ha)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+##### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "value_added_ha",
+    facet = "location_level_one_name",
+    ytitle = "Value added (Per ha)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "value_added_ha")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "value_added_ha",
+          title = "Value added (Per ha)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "value_added_ha",
+          title = "Value added (Per ha)")
+```
+
+### Value added on Gross value of the production (VA/GVP)
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "value_added_gvp",
+    ytitle = "Value added on Gross value of\nthe production (VA/GVP)",
+    xtitle = "Total CAET Score"
+)
+```
+
+##### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "value_added_gvp",
+    facet = "location_level_one_name",
+    ytitle = "Value added on Gross value of\nthe production (VA/GVP)",
+    xtitle = "Total CAET Score"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "value_added_gvp")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "value_added_gvp",
+          title = "Value added on Gross value of the production (VA/GVP)" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "value_added_gvp",
+          title = "Value added on Gross value of the production (VA/GVP)")
+```
+
+## Income
+
+### Crop Sales
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "crop_sales",
+    ytitle = "Crop Sales",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+##### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "crop_sales",
+    facet = "location_level_one_name",
+    ytitle = "Crop Sales",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "crop_sales")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "crop_sales",
+          title = "Crop Sales" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "crop_sales",
+          title = "Crop Sales")
+```
+
+### Crop and forestry product Sales
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "cfp_sales",
+    ytitle = "Crop and forestry product Sales",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "cfp_sales")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "cfp_sales",
+          title = "Crop and forestry product Sales" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "cfp_sales",
+          title = "Crop and forestry product Sales")
+```
+
+### animal Sales
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "anim_sales",
+    ytitle = "animal Sales",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+##### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "anim_sales",
+    facet = "location_level_one_name",
+    ytitle = "animal Sales",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "anim_sales")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "anim_sales",
+          title = "animal Sales" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "anim_sales",
+          title = "animal Sales")
+```
+
+### animal and livestock product Sales
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "anpr_sales",
+    ytitle = "animal and livestock product Sales",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### By region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "anpr_sales",
+    facet = "location_level_one_name",
+    ytitle = "animal and livestock product Sales",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "anpr_sales")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "anpr_sales",
+          title = "animal and livestock product Sales" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "anpr_sales",
+          title = "animal and livestock product Sales")
+```
+
+### Revenue derived from other activities
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "acrev",
+    ytitle = "Revenue derived from other activities",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "acrev")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "acrev",
+          title = "Revenue derived from other activities" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "acrev",
+          title = "Revenue derived from other activities")
+```
+
+### Cost of Renting Land
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "finance_exp",
+    ytitle = "Cost of Renting Land",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "finance_exp")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "finance_exp",
+          title = "Cost of Renting Land" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "finance_exp",
+          title = "Cost of Renting Land")
+```
+
+### Net revenue from agropastoral activities
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "netrev",
+    ytitle = "Net revenue from agropastoral activities",
+    xtitle = "Total CAET Score",
+    scale = "log10"
+)
+```
+
+#### By region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "netrev",
+    facet = "location_level_one_name",
+    ytitle = "Net revenue from agropastoral activities",
+    xtitle = "Total CAET Score",
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "netrev")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "netrev",
+          title = "Net revenue from agropastoral activities" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "netrev",
+          title = "Net revenue from agropastoral activities")
+```
+
+### % of revenue derived from crops and livestock
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_rev_crop_liv",
+    ytitle = "% of revenue derived from crops and livestock",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### By region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "pct_rev_crop_liv",
+    facet = "location_level_one_name",
+    ytitle = "% of revenue derived from crops and livestock",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "pct_rev_crop_liv")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "pct_rev_crop_liv",
+          title = "% of revenue derived from crops and livestock" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "pct_rev_crop_liv",
+          title = "% of revenue derived from crops and livestock")
+```
+
+### % of people under poverty level
+
+#### Chi-Square Test
+
+```{r}
+x <- janitor::tabyl(data, intl_poverty, pro_soils_group)%>%chisq.test()
+
+janitor::tabyl(data%>%mutate(intl_poverty = ifelse(intl_poverty == 1, "Yes", "No")),
+               intl_poverty, pro_soils_group) %>%
+        janitor::adorn_percentages(denominator = "col") %>%
+        janitor::adorn_pct_formatting() %>%
+        janitor::adorn_ns() %>%
+        flextable::flextable() %>%
+        flextable::set_header_labels(values = list(
+            intl_poverty = "Living below poverty line?",
+            `0` = "Non-ProSoils",
+            `1` = "ProSoils"
+        )) %>%
+        flextable::autofit() %>%
+        flextable::theme_alafoli() %>%
+        flextable::bg(part = "all", bg = "white") %>%
+        flextable::add_footer_lines(values = paste0("Chi2 test - p.value = ", round(x$p.value, 3)))
+```
+
+#### T-test of mean caet score by povert status
+
+```{r}
+data %>%
+    dplyr::select(totscore_caet, intl_poverty, pro_soils_group) %>%
+    dplyr::mutate(pro_soils_group = ifelse(pro_soils_group == 1,
+                                            "ProSoils",
+                                            "Non-ProSoils")) %>%
+    tidyr::nest(data = c(totscore_caet, intl_poverty)) %>%
+    dplyr::mutate(data = purrr::map(data, ~ {
+        out <- t.test(.x$totscore_caet ~ .x$intl_poverty)
+        tibble::tibble(
+            "Not in Poverty" = out$estimate[1],
+            "In Poverty" = out$estimate[2],
+            Difference = out$estimate[1] - out$estimate[2],
+            `t-value` = out$statistic,
+            p.value = out$p.value
+        )
+    })) %>%
+    tidyr::unnest(cols = data) %>%
+    flextable::flextable() %>%
+    flextable::colformat_double(j = 2:5, digits = 1) %>%
+    flextable::colformat_double(j = 6, digits = 3) %>%
+    flextable::theme_alafoli() %>%
+    flextable::bg(part = "all", bg = "white") %>%
+    flextable::autofit()
+```
+
+### Depreciation
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "depreciation",
+    ytitle = "Depreciation",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### By region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "depreciation",
+    facet = "location_level_one_name",
+    ytitle = "Depreciation",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "depreciation")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "depreciation",
+          title = "Depreciation" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "depreciation",
+          title = "Depreciation")
+```
+
+### Expenditures for  wages
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "totwage",
+    ytitle = "Expenditures for  wages",
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "totwage")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "totwage",
+          title = "Expenditures for  wages" )
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "totwage",
+          title = "Expenditures for  wages")
+```
+
+### Qualitative perception of earnings and expenditures
+
+##### Overall Scatter
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "inc3_inverse",
+    ytitle = "Qualitative perception of earnings and expenditures\n
+    (1 = Much less income - 5 = Much more)",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+#### By Region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "inc3_inverse",
+    facet = "location_level_one_name",
+    ytitle = "Qualitative perception of earnings and expenditures\n
+    (1 = Much less income - 5 = Much more)",
+    xtitle = "Total CAET Score",
+    min = 1,
+    max = 5
+)
+```
+
+
+#### Spearman's rank Correlations
+
+```{r}
+correlations_table(indicator = "inc3_inverse")
+```
+
+#### Test of Mean - ProSoils vs Comparison
+
+```{r}
+mean_test(indicator = "inc3_inverse",
+          title = "Qualitative perception of earnings and expenditures\n
+    (1 = Much less income - 5 = Much more)")
+```
+
+#### Test of Median - ProSoils vs Comparison
+
+```{r}
+median_test(indicator = "inc3_inverse",
+          title = "Qualitative perception of earnings and expenditures\n
+    (1 = Much less income - 5 = Much more)")
+```
