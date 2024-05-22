@@ -11,11 +11,8 @@ In this repository you should find the following:
 
 After saving the folder somewhere useful on your computer, please move the data you will have downloaded from the platform into this folder. Note that these scripts have been configured to work with the full data download from the platforms home page. This data download will contain all data for your team across multiple sheets in an excel workbook.
 Open the R project file to bring up RStudio. Then open up any of the markdown scripts either through the “Files” pane in RStudio or the standard file explorer.
-At the top of every script you will see a code chunk similar to the one below.
 
-![initial_code_chunk](image.png)
-
-First, anytime you see “FILEPATH TO DATA HERE” replace this with  the relative file path to where you have saved the data. If you have followed as suggested, this should be “../NAME_OF_DATA.xlsx”
+First, in the `readdata.R` file, replace the "../name-of-file.xlsx" with the name of your data file. Keep the `../` so that the file can be found when running the RMarkdown scripts inside the `scripts` folder. 
 
 Next, make sure you have installed the renv package. You can install this by typing install.packages(“renv”) into the console window in RStudio.
 
