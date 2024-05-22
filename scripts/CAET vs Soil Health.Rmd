@@ -21,22 +21,11 @@ library(flextable)
 library(fmsb)
 
 #read in performance data
-Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Main Survey",
-                        check.names = TRUE)
+source("../readdata.R")
 
-Indicators <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Calculated Indicators",
-                        check.names = TRUE)%>%
-  select(farm_id, dietary_diversity:pest_score)%>%
-  select(-c(inc3,structure, compaction, depth, residues,
-            color, water_ret, cover, erosion, invertebrates, microbio))
-
-data <- left_join(Main_Survey,
-                         Indicators)
-
-#import functions to use for analysis
+#read in functions for scripts
 source("../functions.R")
+
 ```
 
 ## Soil Health

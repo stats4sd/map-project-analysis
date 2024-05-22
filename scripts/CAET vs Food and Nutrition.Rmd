@@ -1,5 +1,5 @@
 ---
-title: "Kenya - CAET vs Food and Nutrition"
+title: "CAET vs Food and Nutrition"
 output: html_document
 date: "2024-02-20"
 ---
@@ -21,22 +21,11 @@ library(flextable)
 library(fmsb)
 
 #read in performance data
-Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Main Survey",
-                        check.names = TRUE)
+source("../readdata.R")
 
-Indicators <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Calculated Indicators",
-                        check.names = TRUE)%>%
-  select(farm_id, dietary_diversity:pest_score)%>%
-  select(-c(inc3,structure, compaction, depth, residues,
-            color, water_ret, cover, erosion, invertebrates, microbio))
-
-data <- left_join(Main_Survey,
-                         Indicators)
-
-#import functions to use for analysis
+#read in functions for scripts
 source("../functions.R")
+
 ```
 
 ## Dietary Diversity
@@ -148,7 +137,7 @@ median_test(indicator = "fies_score",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "food_exp_capita",
-    ytitle = "Food Expenditure per Capita (Kenya Shilling)",
+    ytitle = paste("Food Expenditure per Capita (", currency, ")"),
     xtitle = "Total CAET Score",
     scale = "log10"
 )
@@ -161,7 +150,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "food_exp_capita",
     facet = "location_level_one_name",
-    ytitle = "Food Expenditure per Capita (Kenya Shilling)",
+    ytitle = paste("Food Expenditure per Capita (", currency, ")"),
     xtitle = "Total CAET Score",
     scale = "log10"
 )
@@ -177,12 +166,12 @@ correlations_table(indicator = "food_exp_capita")
 
 ```{r}
 mean_test(indicator = "food_exp_capita",
-          title = "Food Expenditure per Capita (Kenya Shilling)")
+          title = paste("Food Expenditure per Capita (", currency, ")"))
 ```
 
 ### Test of Median - ProSoils vs Comparison
 
 ```{r}
 median_test(indicator = "food_exp_capita",
-          title = "Food Expenditure per Capita (Kenya Shilling)")
+          title = paste("Food Expenditure per Capita (", currency, ")"))
 ```

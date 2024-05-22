@@ -21,17 +21,15 @@ library(flextable)
 library(fmsb)
 
 #read in performance data
-Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Main Survey",
-                        check.names = TRUE)%>%
-  filter(team_name == "Kenya Team")
+source("../readdata.R")
 
-#import functions to use for analysis
+#read in functions for scripts
 source("../functions.R")
+
 ```
 
 ```{r}
-Main_Survey %>%        
+Main_Survey %>%
     dplyr::select(starts_with("stand_"), pro_soils_group) %>%
         tidyr::pivot_longer(cols = starts_with("stand_"), names_to = "dimension") %>%
         dplyr::mutate(
@@ -70,7 +68,7 @@ Main_Survey %>%
 ```
 
 ```{r}
-Main_Survey %>%        
+Main_Survey %>%
     dplyr::select(starts_with("stand_"), pro_soils_group, "Region" = location_level_one_name ) %>%
         tidyr::pivot_longer(cols = starts_with("stand_"), names_to = "dimension") %>%
         dplyr::mutate(

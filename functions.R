@@ -3,6 +3,7 @@ library(tidyverse)
 library(flextable)
 library(agricolae)
 library(scales)
+library(janitor)
 
 caet_performance_scatter <-
     function(x, #Set x axis variable (A CAET Score)

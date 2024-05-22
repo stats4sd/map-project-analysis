@@ -21,22 +21,11 @@ library(flextable)
 library(fmsb)
 
 #read in performance data
-Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Main Survey",
-                        check.names = TRUE)
+source("../readdata.R")
 
-Indicators <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Calculated Indicators",
-                        check.names = TRUE)%>%
-  select(farm_id, dietary_diversity:pest_score)%>%
-  select(-c(inc3,structure, compaction, depth, residues,
-            color, water_ret, cover, erosion, invertebrates, microbio))
-
-data <- left_join(Main_Survey,
-                         Indicators)
-
-#import functions to use for analysis
+#read in functions for scripts
 source("../functions.R")
+
 ```
 
 ## Women's Empowerment
@@ -201,7 +190,7 @@ median_test(indicator = "pct_fadult_ag",
 
 ## Youth Empowerment
 
-### Youth Employment score 
+### Youth Employment score
 
 #### Overall Scatter
 
@@ -253,7 +242,7 @@ median_test(indicator = "youth_employ",
 ```
 
 
-### Youth Emigration score 
+### Youth Emigration score
 
 #### Overall Scatter
 
@@ -304,7 +293,7 @@ median_test(indicator = "youth_emigr",
           title = "Youth Emigration score (0-100%)")
 ```
 
-### Overall Youth score 
+### Overall Youth score
 
 #### Overall Scatter
 
@@ -356,7 +345,7 @@ median_test(indicator = "youth_score",
 ```
 
 
-### Percentage of youth (15-34 yo) in the household working in agriculture 
+### Percentage of youth (15-34 yo) in the household working in agriculture
 
 #### Overall Scatter
 
@@ -407,7 +396,7 @@ median_test(indicator = "pct_youth_ag",
 
 ## Other
 
-### Percentage of children in the household working in agriculture 
+### Percentage of children in the household working in agriculture
 
 ```{r}
 janitor::tabyl(data, hh_children, pro_soils_group)%>%
@@ -470,7 +459,7 @@ median_test(indicator = "pct_ag_children",
           title = "Percentage of children\nin the household working in agriculture (0-100%)")
 ```
 
-### Percentage of family in the household working in agriculture 
+### Percentage of family in the household working in agriculture
 
 #### Overall Scatter
 

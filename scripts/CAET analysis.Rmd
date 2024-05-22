@@ -1,5 +1,5 @@
 ---
-title: "CAET Step 1 Analysis - Kenya"
+title: "CAET Step 1 Analysis"
 output: html_document
 date: "2024-02-26"
 ---
@@ -12,7 +12,6 @@ knitr::opts_chunk$set(
     message = FALSE
 )
 
-#renv::restore()
 
 # Load Libraries
 library(tidyverse)
@@ -21,13 +20,11 @@ library(flextable)
 library(fmsb)
 
 #read in performance data
-Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Main Survey",
-                        check.names = TRUE)%>%
-  filter(team_name == "Kenya Team")
+source("../readdata.R")
 
-#import functions to use for analysis
+#read in functions for scripts
 source("../functions.R")
+
 ```
 
 ### Overall
@@ -93,7 +90,7 @@ Main_Survey %>%
   nest(data = c(totscore_caet, pro_soils_group)) %>%
   mutate(data = map(data, ~ {
     out <- t.test(.x$totscore_caet ~ .x$pro_soils_group)
-    tibble("Non-ProSoils" = out$estimate[1], 
+    tibble("Non-ProSoils" = out$estimate[1],
            ProSoils = out$estimate[2],
            Difference = `Non-ProSoils` - ProSoils,
            `t-value` = out$statistic, p.value = out$p.value)
@@ -134,8 +131,7 @@ Main_Survey%>%
     scale_x_discrete(labels = c("Non-ProSoils", "ProSoils"))+
     scale_fill_manual(values = c("grey32", "forestgreen"))+
     labs(x = NULL,
-         y = "Standardised Dimension Score",
-         subtitle = "Kenya")+
+         y = "Standardised Dimension Score")+
     theme_bw()+
     theme(legend.position = "none",
           axis.text.x = element_text(size = 8))
@@ -164,17 +160,17 @@ colnames(X) <- c("Diversity", "Synergies",
                  "Responsible Governance") #name the columns
 
 # Color vector
-colors_border=c(rgb(0.2,0.6,0,0.5), rgb(0,0,0,0.8)) #set the colours for the borders 
+colors_border=c(rgb(0.2,0.6,0,0.5), rgb(0,0,0,0.8)) #set the colours for the borders
 colors_in=c(rgb(0.2,0.6,0,0.3), rgb(0,0,0,0.3)) #set the internal colours to be plotted
 
 X%>%
-    radarchart(axistype = 1 , 
+    radarchart(axistype = 1 ,
     #custom polygon
     pcol=rev(colors_border) , pfcol=rev(colors_in) , plwd=4 , plty=1,
     #custom the grid
     cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,100,25), cglwd=0.8,
     #custom labels
-    vlcex=0.8 
+    vlcex=0.8
     )
 
 #add a legend

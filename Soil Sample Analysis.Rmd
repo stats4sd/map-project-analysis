@@ -24,16 +24,16 @@ library(gtsummary)
 '%!in%' <- function(x,y)!('%in%'(x,y))
 
 #read in performance data
-Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
+Main_Survey <- read.xlsx(data_file,
                          sheet = "Main Survey",
                          check.names = TRUE)
 
-soil_data <- read.xlsx("FILEPATH TO DATA HERE",
+soil_data <- read.xlsx(data_file,
                          sheet = "soil_lab_data",
                          check.names = TRUE)
   select(farm_id, soil_sample_label:soil_textural_class)
 
-indicators <- read.xlsx("FILEPATH TO DATA HERE",
+indicators <- read.xlsx(data_file,
                         sheet = "Calculated Indicators",
                         check.names = TRUE)
   select(farm_id, soil_health)
@@ -68,8 +68,8 @@ p1 <- ggplot(data %>%
     theme_bw() +
     theme(legend.position = "bottom") +
     scale_x_continuous(limits = c(0, 100))+
-  border()                            
-    
+  border()
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
        aes(y = ph,
@@ -88,7 +88,7 @@ p2 <- ggplot(data %>%
     theme_bw() +
     theme(axis.text.x = element_blank())+
     theme(legend.position = "bottom")+
-  border()                            
+  border()
 
 p3 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
@@ -109,7 +109,7 @@ p3 <- ggplot(data %>%
     theme(axis.text.y = element_blank())+
     theme(legend.position = "bottom") +
     scale_x_continuous(limits = c(0, 100))+
-  border()                            
+  border()
 
 tab <- data%>%
     group_by(pro_soils_group)%>%
@@ -132,7 +132,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = Group, values_from = Estimate)
 
-stable.p <- ggtexttable(tab, rows = NULL, 
+stable.p <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 8),
                             )
@@ -141,13 +141,13 @@ yplot <- p2 + clean_theme()
 xplot <- p3 + clean_theme()
 
 # Arranging the plot
-plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
-          ncol = 2, nrow = 2,  align = "hv", 
+plotfull <- ggarrange(xplot, stable.p, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-annotate_figure(plotfull,top = text_grob("Soil pH", 
+annotate_figure(plotfull,top = text_grob("Soil pH",
                color = "black", face = "bold", size = 14))
 ```
 
@@ -162,7 +162,7 @@ p1 <- ggplot(data %>%
        )) +
     geom_point(size = 1) +
     geom_smooth()+
-    facet_wrap(~location_level_one_name, 
+    facet_wrap(~location_level_one_name,
                ncol = 2)+
     scale_colour_manual(
         values = c("grey4", "forestgreen"),
@@ -175,7 +175,7 @@ p1 <- ggplot(data %>%
     theme(legend.position = "bottom") +
     scale_x_continuous(limits = c(0, 100))+
     border()
-    
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group) &
                     !is.na(location_level_one_name)),
@@ -240,7 +240,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = location_level_one_name, values_from = Estimate)
 
-stable.p1 <- ggtexttable(tab, rows = NULL, 
+stable.p1 <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 5),
                             )
@@ -250,15 +250,15 @@ xplot <- p3 + clean_theme()
 
 # Arranging the plot
 plotfull <- ggarrange(xplot, NULL, p1, yplot,
-          ncol = 2, nrow = 2,  align = "hv", 
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-plotfull <- annotate_figure(plotfull,left = text_grob("Soil pH", 
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil pH",
                color = "black", face = "bold", size = 12, rot = 90))
 
-annotate_figure(plotfull,bottom = text_grob("Total CAET Score", 
+annotate_figure(plotfull,bottom = text_grob("Total CAET Score",
                color = "black", face = "bold", size = 12))
 ```
 
@@ -284,8 +284,8 @@ p1 <- ggplot(data %>%
     theme_bw() +
     theme(legend.position = "bottom") +
     scale_x_continuous(limits = c(0, 100))+
-  border()                            
-    
+  border()
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
        aes(y = soc,
@@ -304,7 +304,7 @@ p2 <- ggplot(data %>%
     theme_bw() +
     theme(axis.text.x = element_blank())+
     theme(legend.position = "bottom")+
-  border()                            
+  border()
 
 p3 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
@@ -325,7 +325,7 @@ p3 <- ggplot(data %>%
     theme(axis.text.y = element_blank())+
     theme(legend.position = "bottom") +
     scale_x_continuous(limits = c(0, 100))+
-  border()                            
+  border()
 
 tab <- data%>%
     group_by(pro_soils_group)%>%
@@ -348,7 +348,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = Group, values_from = Estimate)
 
-stable.p <- ggtexttable(tab, rows = NULL, 
+stable.p <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 8),
                             )
@@ -357,13 +357,13 @@ yplot <- p2 + clean_theme()
 xplot <- p3 + clean_theme()
 
 # Arranging the plot
-plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
-          ncol = 2, nrow = 2,  align = "hv", 
+plotfull <- ggarrange(xplot, stable.p, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-annotate_figure(plotfull,top = text_grob("Soil SOC", 
+annotate_figure(plotfull,top = text_grob("Soil SOC",
                color = "black", face = "bold", size = 14))
 ```
 
@@ -390,7 +390,7 @@ p1 <- ggplot(data %>%
     theme(legend.position = "bottom") +
     scale_x_continuous(limits = c(0, 100))+
     border()
-    
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group) &
                     !is.na(location_level_one_name)),
@@ -454,7 +454,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = location_level_one_name, values_from = Estimate)
 
-stable.p1 <- ggtexttable(tab, rows = NULL, 
+stable.p1 <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 5),
                             )
@@ -464,15 +464,15 @@ xplot <- p3 + clean_theme()
 
 # Arranging the plot
 plotfull <- ggarrange(xplot, NULL, p1, yplot,
-          ncol = 2, nrow = 2,  align = "hv", 
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-plotfull <- annotate_figure(plotfull,left = text_grob("Soil SOC", 
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil SOC",
                color = "black", face = "bold", size = 12, rot = 90))
 
-annotate_figure(plotfull,bottom = text_grob("Total CAET Score", 
+annotate_figure(plotfull,bottom = text_grob("Total CAET Score",
                color = "black", face = "bold", size = 12))
 ```
 
@@ -498,8 +498,8 @@ p1 <- ggplot(data %>%
     theme_bw() +
     theme(legend.position = "bottom") +
     scale_x_continuous(limits = c(0, 100))+
-  border()                            
-    
+  border()
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
        aes(y = tn,
@@ -518,7 +518,7 @@ p2 <- ggplot(data %>%
     theme_bw() +
     theme(axis.text.x = element_blank())+
     theme(legend.position = "bottom")+
-  border()                            
+  border()
 
 p3 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
@@ -539,7 +539,7 @@ p3 <- ggplot(data %>%
     theme(axis.text.y = element_blank())+
     theme(legend.position = "bottom") +
     scale_x_continuous(limits = c(0, 100))+
-  border()                            
+  border()
 
 tab <- data%>%
     group_by(pro_soils_group)%>%
@@ -562,7 +562,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = Group, values_from = Estimate)
 
-stable.p <- ggtexttable(tab, rows = NULL, 
+stable.p <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 8),
                             )
@@ -571,13 +571,13 @@ yplot <- p2 + clean_theme()
 xplot <- p3 + clean_theme()
 
 # Arranging the plot
-plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
-          ncol = 2, nrow = 2,  align = "hv", 
+plotfull <- ggarrange(xplot, stable.p, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-annotate_figure(plotfull,top = text_grob("Soil TN", 
+annotate_figure(plotfull,top = text_grob("Soil TN",
                color = "black", face = "bold", size = 14))
 ```
 
@@ -604,7 +604,7 @@ p1 <- ggplot(data %>%
     theme(legend.position = "bottom") +
     scale_x_continuous(limits = c(0, 100))+
     border()
-    
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group) &
                     !is.na(location_level_one_name)),
@@ -669,7 +669,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = location_level_one_name, values_from = Estimate)
 
-stable.p1 <- ggtexttable(tab, rows = NULL, 
+stable.p1 <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 5),
                             )
@@ -679,15 +679,15 @@ xplot <- p3 + clean_theme()
 
 # Arranging the plot
 plotfull <- ggarrange(xplot, NULL, p1, yplot,
-          ncol = 2, nrow = 2,  align = "hv", 
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-plotfull <- annotate_figure(plotfull,left = text_grob("Soil TN", 
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil TN",
                color = "black", face = "bold", size = 12, rot = 90))
 
-annotate_figure(plotfull,bottom = text_grob("Total CAET Score", 
+annotate_figure(plotfull,bottom = text_grob("Total CAET Score",
                color = "black", face = "bold", size = 12))
 ```
 
@@ -713,8 +713,8 @@ p1 <- ggplot(data %>%
          colour = NULL)+
     theme_bw() +
     theme(legend.position = "bottom") +
-  border()                            
-    
+  border()
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
        aes(y = ph,
@@ -733,7 +733,7 @@ p2 <- ggplot(data %>%
     theme_bw() +
     theme(axis.text.x = element_blank())+
     theme(legend.position = "bottom")+
-  border()                            
+  border()
 
 p3 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
@@ -753,7 +753,7 @@ p3 <- ggplot(data %>%
     theme_bw() +
     theme(axis.text.y = element_blank())+
     theme(legend.position = "bottom") +
-  border()                            
+  border()
 
 tab <- data%>%
     group_by(pro_soils_group)%>%
@@ -776,7 +776,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = Group, values_from = Estimate)
 
-stable.p <- ggtexttable(tab, rows = NULL, 
+stable.p <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 8),
                             )
@@ -785,13 +785,13 @@ yplot <- p2 + clean_theme()
 xplot <- p3 + clean_theme()
 
 # Arranging the plot
-plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
-          ncol = 2, nrow = 2,  align = "hv", 
+plotfull <- ggarrange(xplot, stable.p, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-annotate_figure(plotfull,top = text_grob("Soil pH", 
+annotate_figure(plotfull,top = text_grob("Soil pH",
                color = "black", face = "bold", size = 14))
 ```
 
@@ -817,7 +817,7 @@ p1 <- ggplot(data %>%
     theme_bw() +
     theme(legend.position = "bottom") +
     border()
-    
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group) &
                     !is.na(location_level_one_name)),
@@ -881,7 +881,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = location_level_one_name, values_from = Estimate)
 
-stable.p1 <- ggtexttable(tab, rows = NULL, 
+stable.p1 <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 5),
                             )
@@ -891,15 +891,15 @@ xplot <- p3 + clean_theme()
 
 # Arranging the plot
 plotfull <- ggarrange(xplot, NULL, p1, yplot,
-          ncol = 2, nrow = 2,  align = "hv", 
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-plotfull <- annotate_figure(plotfull,left = text_grob("Soil pH", 
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil pH",
                color = "black", face = "bold", size = 12, rot = 90))
 
-annotate_figure(plotfull,bottom = text_grob("Soil Health Index", 
+annotate_figure(plotfull,bottom = text_grob("Soil Health Index",
                color = "black", face = "bold", size = 12))
 ```
 
@@ -924,8 +924,8 @@ p1 <- ggplot(data %>%
          colour = NULL)+
     theme_bw() +
     theme(legend.position = "bottom") +
-  border()                            
-    
+  border()
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
        aes(y = soc,
@@ -944,7 +944,7 @@ p2 <- ggplot(data %>%
     theme_bw() +
     theme(axis.text.x = element_blank())+
     theme(legend.position = "bottom")+
-  border()                            
+  border()
 
 p3 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
@@ -964,7 +964,7 @@ p3 <- ggplot(data %>%
     theme_bw() +
     theme(axis.text.y = element_blank())+
     theme(legend.position = "bottom") +
-  border()                            
+  border()
 
 tab <- data%>%
     group_by(pro_soils_group)%>%
@@ -987,7 +987,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = Group, values_from = Estimate)
 
-stable.p <- ggtexttable(tab, rows = NULL, 
+stable.p <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 8),
                             )
@@ -996,13 +996,13 @@ yplot <- p2 + clean_theme()
 xplot <- p3 + clean_theme()
 
 # Arranging the plot
-plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
-          ncol = 2, nrow = 2,  align = "hv", 
+plotfull <- ggarrange(xplot, stable.p, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-annotate_figure(plotfull,top = text_grob("Soil SOC", 
+annotate_figure(plotfull,top = text_grob("Soil SOC",
                color = "black", face = "bold", size = 14))
 ```
 
@@ -1028,7 +1028,7 @@ p1 <- ggplot(data %>%
     theme_bw() +
     theme(legend.position = "bottom") +
     border()
-    
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group) &
                     !is.na(location_level_one_name)),
@@ -1092,7 +1092,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = location_level_one_name, values_from = Estimate)
 
-stable.p1 <- ggtexttable(tab, rows = NULL, 
+stable.p1 <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 5),
                             )
@@ -1102,15 +1102,15 @@ xplot <- p3 + clean_theme()
 
 # Arranging the plot
 plotfull <- ggarrange(xplot, NULL, p1, yplot,
-          ncol = 2, nrow = 2,  align = "hv", 
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-plotfull <- annotate_figure(plotfull,left = text_grob("Soil SOC", 
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil SOC",
                color = "black", face = "bold", size = 12, rot = 90))
 
-annotate_figure(plotfull,bottom = text_grob("Soil Health Index", 
+annotate_figure(plotfull,bottom = text_grob("Soil Health Index",
                color = "black", face = "bold", size = 12))
 ```
 
@@ -1135,8 +1135,8 @@ p1 <- ggplot(data %>%
          colour = NULL)+
     theme_bw() +
     theme(legend.position = "bottom") +
-  border()                            
-    
+  border()
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
        aes(y = tn,
@@ -1155,7 +1155,7 @@ p2 <- ggplot(data %>%
     theme_bw() +
     theme(axis.text.x = element_blank())+
     theme(legend.position = "bottom")+
-  border()                            
+  border()
 
 p3 <- ggplot(data %>%
            filter(!is.na(pro_soils_group)),
@@ -1175,7 +1175,7 @@ p3 <- ggplot(data %>%
     theme_bw() +
     theme(axis.text.y = element_blank())+
     theme(legend.position = "bottom") +
-  border()                            
+  border()
 
 tab <- data%>%
     group_by(pro_soils_group)%>%
@@ -1198,7 +1198,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = Group, values_from = Estimate)
 
-stable.p <- ggtexttable(tab, rows = NULL, 
+stable.p <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 8),
                             )
@@ -1207,13 +1207,13 @@ yplot <- p2 + clean_theme()
 xplot <- p3 + clean_theme()
 
 # Arranging the plot
-plotfull <- ggarrange(xplot, stable.p, p1, yplot, 
-          ncol = 2, nrow = 2,  align = "hv", 
+plotfull <- ggarrange(xplot, stable.p, p1, yplot,
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-annotate_figure(plotfull,top = text_grob("Soil TN", 
+annotate_figure(plotfull,top = text_grob("Soil TN",
                color = "black", face = "bold", size = 14))
 ```
 
@@ -1239,7 +1239,7 @@ p1 <- ggplot(data %>%
     theme_bw() +
     theme(legend.position = "bottom") +
     border()
-    
+
 p2 <- ggplot(data %>%
            filter(!is.na(pro_soils_group) &
                     !is.na(location_level_one_name)),
@@ -1303,7 +1303,7 @@ tab <- data%>%
     rename("Group" = pro_soils_group)%>%
         pivot_wider(names_from = location_level_one_name, values_from = Estimate)
 
-stable.p1 <- ggtexttable(tab, rows = NULL, 
+stable.p1 <- ggtexttable(tab, rows = NULL,
                         theme = ttheme("mGreen",
                                        base_size = 5),
                             )
@@ -1313,15 +1313,15 @@ xplot <- p3 + clean_theme()
 
 # Arranging the plot
 plotfull <- ggarrange(xplot, NULL, p1, yplot,
-          ncol = 2, nrow = 2,  align = "hv", 
+          ncol = 2, nrow = 2,  align = "hv",
           widths = c(1.5, 1), heights = c(1, 1.5),
           common.legend = TRUE,
           legend = "top")
 
-plotfull <- annotate_figure(plotfull,left = text_grob("Soil TN", 
+plotfull <- annotate_figure(plotfull,left = text_grob("Soil TN",
                color = "black", face = "bold", size = 12, rot = 90))
 
-annotate_figure(plotfull,bottom = text_grob("Soil Health Index", 
+annotate_figure(plotfull,bottom = text_grob("Soil Health Index",
                color = "black", face = "bold", size = 12))
 ```
 

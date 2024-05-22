@@ -22,22 +22,11 @@ library(fmsb)
 library(janitor)
 
 #read in performance data
-Main_Survey <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Main Survey",
-                        check.names = TRUE)
+source("../readdata.R")
 
-Indicators <- read.xlsx("FILEPATH TO DATA HERE",
-                        sheet = "Calculated Indicators",
-                        check.names = TRUE)%>%
-  select(farm_id, dietary_diversity:pest_score)%>%
-  select(-c(inc3,structure, compaction, depth, residues,
-            color, water_ret, cover, erosion, invertebrates, microbio))
-
-data <- left_join(Main_Survey,
-                         Indicators)
-
-#import functions to use for analysis
+#read in functions for scripts
 source("../functions.R")
+
 ```
 
 ## Value Added
@@ -64,7 +53,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "total_expenditures",
     facet = "location_level_one_name",
-    ytitle = "Total expenditures for the purchase of\nseeds, fertilizers, pesticides, machineries",
+    ytitle = paste("Total expenditures for the purchase of\nseeds, fertilizers, pesticides, machineries (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -99,7 +88,7 @@ median_test(indicator = "total_expenditures",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "value_added",
-    ytitle = "Value added (total)",
+    ytitle = paste("Value added (total) (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -113,7 +102,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "value_added",
     facet = "location_level_one_name",
-    ytitle = "Value added (total)",
+    ytitle = paste("Value added (total)(", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -148,7 +137,7 @@ median_test(indicator = "value_added",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "value_added_pcapita",
-    ytitle = "Value added (Per Person)",
+    ytitle =  paste("Value added (Per Person) (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -162,7 +151,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "value_added_pcapita",
     facet = "location_level_one_name",
-    ytitle = "Value added (Per Person)",
+    ytitle = paste("Value added (Per Person) (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -197,7 +186,7 @@ median_test(indicator = "value_added_pcapita",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "value_added_ha",
-    ytitle = "Value added (Per ha)",
+    ytitle = paste("Value added (Per ha) (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -211,7 +200,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "value_added_ha",
     facet = "location_level_one_name",
-    ytitle = "Value added (Per ha)",
+    ytitle = paste("Value added (Per ha) (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -246,7 +235,7 @@ median_test(indicator = "value_added_ha",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "value_added_gvp",
-    ytitle = "Value added on Gross value of\nthe production (VA/GVP)",
+    ytitle = paste("Value added on Gross value of\nthe production (VA/GVP) (", currency ,")"),
     xtitle = "Total CAET Score"
 )
 ```
@@ -258,7 +247,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "value_added_gvp",
     facet = "location_level_one_name",
-    ytitle = "Value added on Gross value of\nthe production (VA/GVP)",
+    ytitle = paste("Value added on Gross value of\nthe production (VA/GVP) (", currency ,")"),
     xtitle = "Total CAET Score"
 )
 ```
@@ -293,7 +282,7 @@ median_test(indicator = "value_added_gvp",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "crop_sales",
-    ytitle = "Crop Sales",
+    ytitle = paste("Crop Sales (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -307,7 +296,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "crop_sales",
     facet = "location_level_one_name",
-    ytitle = "Crop Sales",
+    ytitle = paste("Crop Sales (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -342,7 +331,7 @@ median_test(indicator = "crop_sales",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "cfp_sales",
-    ytitle = "Crop and forestry product Sales",
+    ytitle = paste("Crop and forestry product Sales (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -377,7 +366,7 @@ median_test(indicator = "cfp_sales",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "anim_sales",
-    ytitle = "animal Sales",
+    ytitle = paste("animal Sales (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -391,7 +380,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "anim_sales",
     facet = "location_level_one_name",
-    ytitle = "animal Sales",
+    ytitle = paste("animal Sales (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -440,7 +429,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "anpr_sales",
     facet = "location_level_one_name",
-    ytitle = "animal and livestock product Sales",
+    ytitle = paste("animal and livestock product Sales (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -475,7 +464,7 @@ median_test(indicator = "anpr_sales",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "acrev",
-    ytitle = "Revenue derived from other activities",
+    ytitle = paste("Revenue derived from other activities (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -510,7 +499,7 @@ median_test(indicator = "acrev",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "finance_exp",
-    ytitle = "Cost of Renting Land",
+    ytitle = paste("Cost of Renting Land (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -545,7 +534,7 @@ median_test(indicator = "finance_exp",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "netrev",
-    ytitle = "Net revenue from agropastoral activities",
+    ytitle = paste("Net revenue from agropastoral activities (", currency ,")"),
     xtitle = "Total CAET Score",
     scale = "log10"
 )
@@ -558,7 +547,7 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "netrev",
     facet = "location_level_one_name",
-    ytitle = "Net revenue from agropastoral activities",
+    ytitle = paste("Net revenue from agropastoral activities (", currency ,")"),
     xtitle = "Total CAET Score",
     scale = "log10"
 )
@@ -742,7 +731,7 @@ median_test(indicator = "depreciation",
 caet_performance_scatter(
     x = "totscore_caet",
     y = "totwage",
-    ytitle = "Expenditures for  wages",
+    ytitle = paste("Expenditures for  wages (", currency ,")"),
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
