@@ -338,6 +338,20 @@ caet_performance_scatter(
 )
 ```
 
+##### By region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "cfp_sales",
+    ytitle = "Crop and forestry product Sales",
+    xtitle = "Total CAET Score",
+    facet = "location_level_one_name",
+    min = 0,
+    scale = "log10"
+)
+```
+
 #### Spearman's rank Correlations
 
 ```{r}
@@ -471,6 +485,20 @@ caet_performance_scatter(
 )
 ```
 
+##### By region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "acrev",
+    ytitle = "Revenue derived from other activities",
+    xtitle = "Total CAET Score",
+    facet = "location_level_one_name",
+    min = 0,
+    scale = "log10"
+)
+```
+
 #### Spearman's rank Correlations
 
 ```{r}
@@ -500,6 +528,18 @@ caet_performance_scatter(
     x = "totscore_caet",
     y = "finance_exp",
     ytitle = paste("Cost of Renting Land (", currency ,")"),
+    xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "finance_exp",
+    facet = "location_level_one_name",
+    ytitle = "Cost of Renting Land",
     xtitle = "Total CAET Score",
     min = 0,
     scale = "log10"
@@ -733,6 +773,20 @@ caet_performance_scatter(
     y = "totwage",
     ytitle = paste("Expenditures for  wages (", currency ,")"),
     xtitle = "Total CAET Score",
+    min = 0,
+    scale = "log10"
+)
+```
+
+##### By region
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "totwage",
+    ytitle = "Expenditures for  wages",
+    xtitle = "Total CAET Score",
+    facet = "location_level_one_name",
     min = 0,
     scale = "log10"
 )

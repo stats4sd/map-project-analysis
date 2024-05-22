@@ -207,6 +207,32 @@ caet_performance_scatter(
 )
 ```
 
+Female Score
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_employ_f",
+    ytitle = "Youth Employment score - Female (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+Male Score
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_employ_m",
+    ytitle = "Youth Employment score - Male (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
 #### By Region
 
 ```{r}
@@ -259,6 +285,35 @@ caet_performance_scatter(
 )
 ```
 
+```
+
+Female Score
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_emigr_f",
+    ytitle = "Youth Emigration score - Female (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+Male Score
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_emigr_m",
+    ytitle = "Youth Emigration score - Male (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+
 #### By Region
 
 ```{r}
@@ -309,6 +364,34 @@ caet_performance_scatter(
     max = 100
 )
 ```
+
+
+Female Score
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_score_f",
+    ytitle = "Overall Youth score - Female (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
+Male Score
+
+```{r}
+caet_performance_scatter(
+    x = "totscore_caet",
+    y = "youth_score_m",
+    ytitle = "Overall Youth score - Male (0-100%)",
+    xtitle = "Total CAET Score",
+    min = 0,
+    max = 100
+)
+```
+
 
 #### By Region
 
