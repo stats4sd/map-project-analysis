@@ -125,8 +125,15 @@ mean_test(indicator = "fies_score",
 ### Test of Median - ProSoils vs Comparison
 
 ```{r}
-median_test(indicator = "fies_score",
-          title = "FIES (Food Insecurity Experience Scale) Score")
+
+## if fies_score (that is not null) has over 50% values at 100, do not do median test
+if (sum(data %>% filter(!is.na(fies_score)) %>% pull(fies_score) == 100) / nrow(data) > 0.5) {
+  print("Over 50% of values are at 100, median test not performed")
+} else {
+  median_test(indicator = "fies_score",
+              title = "FIES (Food Insecurity Experience Scale) Score")
+}
+
 ```
 
 ## Food Expenditure per person

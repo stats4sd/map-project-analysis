@@ -689,6 +689,22 @@ janitor::tabyl(data%>%mutate(intl_poverty = ifelse(intl_poverty == 1, "Yes", "No
 #### T-test of mean caet score by povert status
 
 ```{r}
+
+## Check if there are observations in all 4 prosoils/non-prosoils vs inpoverty/not in poverty combos. 
+## Otherwise, the t-test will fail.
+if(
+    data %>%
+        dplyr::select(totscore_caet, intl_poverty, pro_soils_group) %>%
+        dplyr::mutate(pro_soils_group = ifelse(pro_soils_group == 1,
+                                            "ProSoils",
+                                            "Non-ProSoils")) %>%
+        dplyr::group_by(intl_poverty, pro_soils_group) %>%
+        dplyr::summarise(n = n()) %>%
+        dplyr::ungroup() %>%
+        dplyr::pull(n) %>%
+        length() == 4
+) {
+
 data %>%
     dplyr::select(totscore_caet, intl_poverty, pro_soils_group) %>%
     dplyr::mutate(pro_soils_group = ifelse(pro_soils_group == 1,
@@ -712,6 +728,11 @@ data %>%
     flextable::theme_alafoli() %>%
     flextable::bg(part = "all", bg = "white") %>%
     flextable::autofit()
+    
+} else {
+    "Not enough observations in all 4 prosoils/non-prosoils vs inpoverty/not in poverty combos."
+}
+
 ```
 
 ### Depreciation
@@ -732,35 +753,82 @@ caet_performance_scatter(
 #### By region
 
 ```{r}
-caet_performance_scatter(
-    x = "totscore_caet",
-    y = "depreciation",
-    facet = "location_level_one_name",
-    ytitle = "Depreciation",
-    xtitle = "Total CAET Score",
-    min = 0,
-    scale = "log10"
-)
+
+## if there are non-0 depreciation values, plot the scatter
+if(
+    data %>%
+        dplyr::filter(depreciation > 0) %>%
+        nrow() > 0
+) {
+    caet_performance_scatter(
+        x = "totscore_caet",
+        y = "depreciation",
+        facet = "location_level_one_name",
+        ytitle = "Depreciation",
+        xtitle = "Total CAET Score",
+        min = 0,
+        scale = "log10"
+    )
+} else {
+    "No non-0 depreciation values."
+}
+
 ```
 
 #### Spearman's rank Correlations
 
 ```{r}
-correlations_table(indicator = "depreciation")
+
+## if there are non-0 depreciation values, plot the scatter
+if(
+    data %>%
+        dplyr::filter(depreciation > 0) %>%
+        nrow() > 0
+) {
+    correlations_table(indicator = "depreciation")
+} else {
+    "No non-0 depreciation values."
+}
+
 ```
 
 #### Test of Mean - ProSoils vs Comparison
 
 ```{r}
+
+## if there are non-0 depreciation values, plot the scatter
+if(
+    data %>%
+        dplyr::filter(depreciation > 0) %>%
+        nrow() > 0
+) {
+
 mean_test(indicator = "depreciation",
           title = "Depreciation" )
+} else {
+    "No non-0 depreciation values."
+}
+
 ```
 
 #### Test of Median - ProSoils vs Comparison
 
 ```{r}
+
+## if there are non-0 depreciation values, plot the scatter
+if(
+    data %>%
+        dplyr::filter(depreciation > 0) %>%
+        nrow() > 0
+) {
+
 median_test(indicator = "depreciation",
           title = "Depreciation")
+} else {
+    "No non-0 depreciation values."
+}
+
+
 ```
 
 ### Expenditures for  wages
