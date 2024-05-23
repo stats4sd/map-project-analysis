@@ -16,7 +16,7 @@ Indicators <- read.xlsx(data_file,
     sheet = "Calculated Indicators",
     check.names = TRUE
 ) %>%
-    select(farm_id, dietary_diversity:pest_score) %>%
+    select(farm_id, dietary_diversity:youth_score_f) %>%
     select(-c(
         inc3, structure, compaction, depth, residues,
         color, water_ret, cover, erosion, invertebrates, microbio
