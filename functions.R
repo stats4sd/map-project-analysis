@@ -211,7 +211,7 @@ indicator_fisher_test <- function(indicator, title){ #set the indicator and a ti
 
     data$indicator <- data[,indicator]
 
-    x <- tabyl(data, indicator, pro_soils_group, show_na = FALSE) %>% fisher.test() #run the fisher test (non-parametic chi-sq)
+    x <- tabyl(data, indicator, pro_soils_group, show_na = FALSE) %>% fisher.test(simulate.p.value=TRUE) #run the fisher test (non-parametic chi-sq)
 
     tab <- janitor::tabyl(data, indicator, pro_soils_group, show_na = FALSE) %>% #create a frequency table
         janitor::adorn_percentages(denominator = "col") %>% #generate column percentages
