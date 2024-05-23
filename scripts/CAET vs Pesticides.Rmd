@@ -150,9 +150,18 @@ data %>%
     flextable::autofit()
 ```
 
-### Used moderately toxic organic pesticides
+### Used extremely toxic organic pesticides
 
-(No extremely organic pesticides were used)
+```{r}
+n <- nrow(data%>%filter(otox1=="Yes"))
+
+if(n>0){
+indicator_fisher_test("otox2",
+                      "Used moderately toxic organic pesticides")
+}
+```
+
+### Used moderately toxic organic pesticides
 
 #### Fisher Test
 
@@ -432,10 +441,7 @@ median_test(indicator = "ecoman_num",
            title = "Integrated Pest Management Score (0 - 100%)" )
 ```
 
-  Test of Median - ProSoils vs Comparison
-
- would not run - error
-
+Test of Median - ProSoils vs Comparison
 ```{r}
 #median_test(indicator = "pest_score",
 #           title = "Integrated Pest Management Score (0 - 100%)")
