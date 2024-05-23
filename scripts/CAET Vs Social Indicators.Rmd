@@ -284,9 +284,6 @@ caet_performance_scatter(
     max = 100
 )
 ```
-
-```
-
 Female Score
 
 ```{r}
