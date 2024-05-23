@@ -174,6 +174,30 @@ mean_test <- function(indicator, title) {#just need to set the indicator, and a 
 
 median_test <- function(indicator, title) { #just need to set indicator and the title
 
+
+    ## If the data is all 0 bug out because the median test will fail
+
+    if(
+        data %>%
+            dplyr::filter({{indicator}} > 0) %>%
+            nrow() == 0
+    ) {
+        print( paste("No non-0 values for", indicator, " - skipping median test"))
+        return();
+    }
+
+    ## Sometimes, some scores (e.g. percentages) have more than 50% of values as the same value. In this case, the median test fails.
+    # Ideally, we check for all values, but that is complicated and takes a while.
+    # This function fails sometimes for some % values where >50% of values == 100. It also fails in the specific case of Ethiopia with the youth_employ score, where >50% of non-na values = 66.666664123535.
+    if(
+        sum(data %>% filter(!is.na(!!rlang::sym(indicator))) %>% pull({{ indicator }}) == 100)  / nrow(data %>% filter(!is.na(!!rlang::sym(indicator)))) > 0.5
+        || sum(data %>% filter(!is.na(!!rlang::sym(indicator))) %>% pull({{ indicator }}) == 66.666664123535)  / nrow(data %>% filter(!is.na(!!rlang::sym(indicator)))) > 0.5
+    ) {
+            print( paste("Over 50% of the values for", indicator, "are '100', media test not performed"))
+            return();
+    }
+
+
     data$indicator <- data[, indicator] #new column for the indicator
 
     x <- data.frame(table(data$pro_soils_group[!is.na(data$indicator)]))

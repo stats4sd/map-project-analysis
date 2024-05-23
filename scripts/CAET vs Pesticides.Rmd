@@ -88,29 +88,35 @@ indicator_fisher_test("ctox1",
 #### T-test of mean caet score extreme toxicity chemical pesticide use
 
 ```{r}
-data %>%
-    dplyr::select(totscore_caet, ctox1, pro_soils_group) %>%
-    dplyr::mutate(pro_soils_group = ifelse(pro_soils_group == 1,
-                                            "ProSoils",
-                                            "Non-ProSoils")) %>%
-    tidyr::nest(data = c(totscore_caet, ctox1)) %>%
-    dplyr::mutate(data = purrr::map(data, ~ {
-        out <- t.test(.x$totscore_caet ~ .x$ctox1)
-        tibble::tibble(
-            "No extreme toxicity" = out$estimate[1],
-            "Using extremely toxic pesticides" = out$estimate[2],
-            Difference = out$estimate[1] - out$estimate[2],
-            `t-value` = out$statistic,
-            p.value = out$p.value
-        )
-    })) %>%
-    tidyr::unnest(cols = data) %>%
-    flextable::flextable() %>%
-    flextable::colformat_double(j = 2:5, digits = 1) %>%
-    flextable::colformat_double(j = 6, digits = 3) %>%
-    flextable::theme_alafoli() %>%
-    flextable::bg(part = "all", bg = "white") %>%
-    flextable::autofit()
+## check if there is at least 1 entry in the cross-tab of ctox1 and pro_soils_group
+if(all(table(data$ctox1, data$pro_soils_group) > 0)) {
+  
+  data %>%
+      dplyr::select(totscore_caet, ctox1, pro_soils_group) %>%
+      dplyr::mutate(pro_soils_group = ifelse(pro_soils_group == 1,
+                                              "ProSoils",
+                                              "Non-ProSoils")) %>%
+      tidyr::nest(data = c(totscore_caet, ctox1)) %>%
+      dplyr::mutate(data = purrr::map(data, ~ {
+          out <- t.test(.x$totscore_caet ~ .x$ctox1)
+          tibble::tibble(
+              "No extreme toxicity" = out$estimate[1],
+              "Using extremely toxic pesticides" = out$estimate[2],
+              Difference = out$estimate[1] - out$estimate[2],
+              `t-value` = out$statistic,
+              p.value = out$p.value
+          )
+      })) %>%
+      tidyr::unnest(cols = data) %>%
+      flextable::flextable() %>%
+      flextable::colformat_double(j = 2:5, digits = 1) %>%
+      flextable::colformat_double(j = 6, digits = 3) %>%
+      flextable::theme_alafoli() %>%
+      flextable::bg(part = "all", bg = "white") %>%
+      flextable::autofit()
+} else {
+  "Not enough data available for this analysis"
+}
 ```
 
 ### Used moderately toxic chemical pesticides

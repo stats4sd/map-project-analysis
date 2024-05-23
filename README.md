@@ -3,9 +3,13 @@
 ## CONTENTS OF ANALYSIS REPOSITORY
 In this repository you should find the following:
 
-- The script functions.R, this contains the code for a number of user-generated functions we have developed to create certain graphic and tabular outputs
+- The script `functions.R`, this contains the code for a number of user-generated functions we have developed to create certain graphic and tabular outputs
+- The script `readdata.R`, which reads in the data from the excel file - this is the file to update with your data filename.
 - The R project file
-- The folder “scripts” contains all of the analysis RMD (Rmarkdown) scripts of both Step 1 and Step 2, and where available, the soil sample analyses.
+- The folder “scripts” contains all of the analysis RMD (Rmarkdown) scripts of both Step 1 and Step 2, and where available, the soil sample analyses. It also contains a `render_all.R` script which is a quick way to generate the reports for your data and store them into a new 'outputs' subfolder.
+
+
+  
 
 ## INSTRUCTIONS
 

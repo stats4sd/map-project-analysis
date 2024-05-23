@@ -21,29 +21,13 @@ library(fmsb)
 library(ggpubr)
 library(gtsummary)
 
-'%!in%' <- function(x,y)!('%in%'(x,y))
-
 #read in performance data
-Main_Survey <- read.xlsx(data_file,
-                         sheet = "Main Survey",
-                         check.names = TRUE)
+source("../readdata.R")
 
-soil_data <- read.xlsx(data_file,
-                         sheet = "soil_lab_data",
-                         check.names = TRUE)
-  select(farm_id, soil_sample_label:soil_textural_class)
-
-indicators <- read.xlsx(data_file,
-                        sheet = "Calculated Indicators",
-                        check.names = TRUE)
-  select(farm_id, soil_health)
+#read in functions for scripts
+source("../functions.R")
 
 
-data <- left_join(
-  Main_Survey,
-  soil_data
-)%>%
-  left_join(indicators)
 ```
 
 ## Soil PH
